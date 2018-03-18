@@ -1,0 +1,70 @@
+#! /opt/anaconda3/bin/python
+
+from pyAlign_package import Align, db, fancy_printer
+import sys
+
+def argparse():
+    opts1 = {'g_op': -10, 'g_ex': -1, 'mat': 'b62'}
+    opts2 = []
+    seqs = []
+    for arg in sys.argv[1:]:
+        if '=' in arg:
+            i = arg.find('=')
+            opts1[arg[:i]] = arg[i+1:]
+            continue
+        if '-' in arg:
+            opts2.append(arg[1:])
+        else:
+            seqs.append(arg)
+
+    opts1['g_op'] = int(opts1['g_op'])
+    opts1['g_ex'] = int(opts1['g_ex'])
+    opts2 = ''.join(opts2)
+
+    removefasta = True if 'r' in opts2 else False
+    outfile = None #seqs[-1] if ('o' in opts2 and len(seqs) > 2) else "{0}_vs_{1}".format(*seqs)
+    needhelp = True if 'h' in opts2 else False
+
+    if 'v' in opts2:
+        sys.stderr.write('Sequences: {}\n'.format(seqs))
+        sys.stderr.write('AlignOptions: {}\n'.format(opts1))
+        sys.stderr.write('Opts: {}\n'.format(opts2))
+        #sys.stderr.write('Output: {}\n'.format(outfile))
+
+    return seqs, opts1, removefasta, outfile, needhelp
+
+
+def main():
+    seqs, opts1, removefasta, outfile, needhelp = argparse()
+    if needhelp:
+        print("Usage:")
+        print("    pyAlign [-hvr] seq1 seq2 [g_op=[-10] g_ex=[-1] mat=[b62]/pam250/custom]")
+        print("Opts:")
+        print("    h: print this message and return")
+        print("    v: verbose (display calling configuration in stderr)")
+        print("    r: remove fasta files")
+        return 0
+    if len(seqs) < 2:
+        print("hmmmmm....")
+        return 1
+
+    seq1 = db.getseq(seqs[0], erase=removefasta)
+    seq2 = db.getseq(seqs[1], erase=removefasta)
+    seq1_al, seq2_al, ide, score = Align.align(seq1, seq2, **opts1)
+#   db.getseq(seqs[0], erase=True)
+#   db.getseq(seqs[1], erase=True)
+    print()
+    sys.stderr.write("Identity: {}\nScore: {}".format(ide, score))
+    print()
+    print(">", seqs[0])
+    print(seq1_al)
+    print()
+    print(">", seqs[1])
+    print(seq2_al)
+    print()
+
+    return 0
+
+if __name__=='__main__':
+
+    main()

@@ -1,0 +1,2 @@
+#!/bin/bash
+curl https://files.rcsb.org/download/"$1".pdb -O

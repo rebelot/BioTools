@@ -1,0 +1,30 @@
+#!/bin/bash
+## fetch a .fasta sequence file using protein ID
+## Tommaso Laurenzi 
+## 10/12/2016
+## this is my very first vaguely useful bash script (after hello.sh) 
+
+USAGE="Usage: getfasta [PROT_ID]"
+UNIPROT="http://www.uniprot.org/uniprot/IDhere.fasta"
+VALID=0
+
+if [[ ! $# -eq 1 ]]; then           # check for arguments 
+  echo $USAGE
+
+else
+  FILE=$(curl "${UNIPROT/IDhere/$1}" 2>/dev/null)
+  retval="$?"
+  
+  if [[ $retval -eq 0 ]]; then                       	      # check if the url is valid
+    match=$(head -1 <<< "$FILE" | grep \>[a-z][a-z]\|"$1"\|)  # check if the url corresponds to a
+    [[ -z $match ]] || VALID=1                       	      # valid .fasta file, if so, a flag
+  fi                                                          # is set
+  
+  if [[ $VALID -eq 1 ]]; then       # if everything worked 
+    #echo $FILE > "$1".fasta        # a new file named ID.fasta is created
+    curl -O "${UNIPROT/IDhere/$1}"
+    cat "$1".fasta                  # and the file is printed to the screen
+  else
+    echo Invalid ID; echo $USAGE    # otherwise alert the user something went wrong
+  fi
+fi
