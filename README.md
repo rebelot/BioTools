@@ -3,10 +3,12 @@
 A collection of useful bioinformatics tools written by me.
 
 ## Contents:
-
+    
     .
+    ├── README.md
     ├── getfasta
     ├── getpdb
+    ├── pdbrenumber.py
     ├── pyAlign
     ├── pyAlign_package
     │   ├── Align.py
@@ -19,6 +21,7 @@ A collection of useful bioinformatics tools written by me.
     ├── pyDotplot
     └── pyNJ
 
+1 directory, 14 files
 ### getfasta
 
 Creates a .fasta file containing the sequence of [PROT_ID], where PROT_ID is a UniProt accession number
@@ -30,6 +33,12 @@ Creates a .fasta file containing the sequence of [PROT_ID], where PROT_ID is a U
 Creates a .pdb file containing the coordinates of [PROT_ID] atoms, where PROT_ID is a PDB accession number
 
     Usage: getpdb [PROT_ID]
+
+### pdbrenumber
+
+renumbers residues of a .pdb file. Residues which number is > 10000 are renumbered starting from 1.
+    
+    Usage: pdbrenumber.py file.pdb
 
 ### pyAlign
  
