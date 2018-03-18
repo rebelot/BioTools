@@ -57,3 +57,10 @@ example:
     > P01315
     MALWTRLLPLLALLALWAPAPAQAFVNQHLCGSHLVEALYLVCGERGFFYTPKARREAENPQAGAVELGG--GLGGLQALALEGPPQKRGIVEQCCTSICSLYQLENYCN
 
+### pyNJ
+
+Draws a phyolegenetic tree using the Neighbour Join methd. It is interactive and user may choose different options.
+
+    Usage:
+    $ pyNJ
+
