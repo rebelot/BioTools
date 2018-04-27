@@ -1,0 +1,15 @@
+LOGFILE=$1
+TIME=$2
+
+while [ tail -n 1 $LOGFILE | awk '{ print $1 }' =~ 'Chemical' ]; do
+    ct=tail -n 1 $LOGFILE | awk '{ print $3 }'
+    v=tail -n 1 $LOGFILE | awk '{ print $8 }'
+    perh=$(python -c "print($v/24.0)")
+    comp=$(python -c "print(100*$ct/$TIME)")
+    diff=$(python -c "print($TIME - $ct)")
+    eta=$(python -c "print($diff/$perh)")
+
+    echo -r "Completion: $comp% ETA: $eta       "
+    sleep 1
+done
+
