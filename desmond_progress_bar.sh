@@ -1,10 +1,12 @@
+#!/bin/bash
+
 LOGFILE=$1
-TIME=$(grep -m 1 ' time = "[[:alnum:]]*\.[[:alnum:]]' $LOGFILE | awk '{print $3}' | sed 's/"//g')
+TIME=$(grep -m 1 'last_time =' $LOGFILE | awk '{print $3}' | sed 's/"//g')
 TIME=$(python -c "print($TIME/1000)")
 
 echo
 
-while [[ "$(tail -n 1 $LOGFILE | awk '{ print $1 }')" =~ "Chemical" ]]; do
+while [[ "$(tail -n 1 $LOGFILE | awk '{ print $1 }')" =~ Chemical ]]; do
     ct="$(tail -n 1 $LOGFILE | awk '{ print $3 }')"
     v="$(tail -n 1 $LOGFILE | awk '{ print $8 }')"
     ctns=$(python -c "print($ct/1000)")
