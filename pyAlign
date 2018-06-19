@@ -1,4 +1,4 @@
-#! /opt/anaconda3/bin/python
+#!/opt/anaconda3/bin/python
 
 from pyAlign_package import Align, db, fancy_printer
 import sys
