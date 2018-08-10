@@ -7,7 +7,7 @@
 local USAGE UNIPROT
 
 USAGE="Usage: getfasta [PROT_ID]"
-UNIPROT="http://www.uniprot.org/uniprot/IDhere.fasta"
+UNIPROT="https://www.uniprot.org/uniprot/IDhere.fasta"
 
 if [[ ! $# -eq 1 ]]; then           # check for arguments 
   echo $USAGE
