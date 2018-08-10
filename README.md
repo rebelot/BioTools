@@ -1,27 +1,42 @@
 # BioTools
 
-A collection of useful bioinformatics tools written by me.
+A collection of bioinformatics tools written by me.
 
 ## Contents:
-    
-    .
-    ├── README.md
-    ├── getfasta
-    ├── getpdb
-    ├── pdbrenumber.py
-    ├── pyAlign
-    ├── pyAlign_package
-    │   ├── Align.py
-    │   ├── InitMatrix.py
-    │   ├── NJ.py
-    │   ├── SubMatrix.py
-    │   ├── __init__.py
-    │   ├── db.py
-    │   └── fancy_printer.py
-    ├── pyDotplot
-    └── pyNJ
+```
+BioTools/
+├── README.md
+├── cAlign
+│   ├── bin
+│   │   ├── cAlign.py
+│   │   ├── cal.exe
+│   │   └── cal_custom.exe
+│   ├── src
+│   │   ├── main.c
+│   │   └── main_custom.c
+│   └── tags
+├── desmond_progress_bar.sh
+├── getfasta
+├── getpdb
+├── maestro_scripts
+│   ├── maestro_dummy_at_center_of_mass.py
+│   └── maestro_transform.py
+├── pdbrenumber.py
+├── pyAlign
+├── pyAlign_package
+│   ├── Align.py
+│   ├── InitMatrix.py
+│   ├── NJ.py
+│   ├── SubMatrix.py
+│   ├── __init__.py
+│   ├── db.py
+│   ├── fancy_printer.py
+│   └── tags
+├── pyDotplot.py
+└── pyNJ
 
-1 directory, 14 files
+```
+
 ### getfasta
 
 Creates a .fasta file containing the sequence of [PROT_ID], where PROT_ID is a UniProt accession number
@@ -37,8 +52,22 @@ Creates a .pdb file containing the coordinates of [PROT_ID] atoms, where PROT_ID
 ### pdbrenumber
 
 renumbers residues of a .pdb file. Residues which number is > 10000 are renumbered starting from 1.
-    
-    Usage: pdbrenumber.py file.pdb
+
+```
+usage: pdbrenumber [-h] [-b BASE_NUMBER] [-t {atom,het}] [-o1k] pdb
+
+positional arguments:
+  pdb                   pdb input file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BASE_NUMBER, --base-number BASE_NUMBER
+                        offset base number from which renumbering starts
+  -t {atom,het}, --res-type {atom,het}
+                        choose which residues to renumber
+  -o1k, --over-1k       if checked, residuse > 1000 will not be renumbered
+                        from 1
+```
 
 ### pyAlign
  
@@ -73,3 +102,28 @@ Draws a phyolegenetic tree using the Neighbour Join methd. It is interactive and
     Usage:
     $ pyNJ
 
+### pyDotplot
+
+Draws a dot-plot matrix of an alignment, it's interactive.
+    
+    Usage:
+    $ python pyDotplot.py
+
+### cAlign
+
+Perform pairwise alignments using a C backend. Interactive.
+
+    Usage:
+    $ python cAlign.py
+
+### Desmond progress bar
+
+Trace the course of a molecular dynamics using `desmond_progress_bar.sh *.log` into the job directory.
+
+### maestro script: Center of Mass
+
+Places a dummy atom at the center of mass of selected atoms.
+
+### maestro script: Transform
+
+Perform workspace cartesian transformations; the tool provides ways to define reference points and axes to rotate or translate selected atoms.
