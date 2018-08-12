@@ -15,12 +15,8 @@ BioTools/
 │   │   ├── main.c
 │   │   └── main_custom.c
 │   └── tags
-├── desmond_progress_bar.sh
 ├── getfasta
 ├── getpdb
-├── maestro_scripts
-│   ├── maestro_dummy_at_center_of_mass.py
-│   └── maestro_transform.py
 ├── pdbrenumber.py
 ├── pyAlign
 ├── pyAlign_package
@@ -33,8 +29,13 @@ BioTools/
 │   ├── fancy_printer.py
 │   └── tags
 ├── pyDotplot.py
-└── pyNJ
-
+├── pyNJ
+└── schrodinger_scripts
+    ├── _schrun
+    ├── desmond_progress_bar.sh
+    └── maestro_scripts
+        ├── maestro_dummy_at_center_of_mass.py
+        └── maestro_transform.py
 ```
 
 ### getfasta
@@ -116,6 +117,9 @@ Perform pairwise alignments using a C backend. Interactive.
     Usage:
     $ python cAlign.py
 
+
+## SCHRODINGER scripts
+
 ### Desmond progress bar
 
 Trace the course of a molecular dynamics using `desmond_progress_bar.sh *.log` into the job directory.
@@ -127,3 +131,7 @@ Places a dummy atom at the center of mass of selected atoms.
 ### maestro script: Transform
 
 Perform workspace cartesian transformations; the tool provides ways to define reference points and axes to rotate or translate selected atoms.
+
+### $SCHRODINGER/run completion for zsh
+
+An extensible incipit for the `$SCHRODINGER/run` command tab-completion for zsh. Add it to $fpath and make sure completions are enabled.
