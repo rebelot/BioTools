@@ -134,4 +134,4 @@ Perform workspace cartesian transformations; the tool provides ways to define re
 
 ### $SCHRODINGER/run completion for zsh
 
-An extensible incipit for the `$SCHRODINGER/run` command tab-completion for zsh. Add it to $fpath and make sure completions are enabled.
+An extensible incipit for the `$SCHRODINGER/run` command tab-completion for zsh. Add it to `$fpath` and make sure completions are enabled. Requires a proxy script named `schrun` in your path: `echo '$SCHRODINGER/run "$@"' > schrun`.
