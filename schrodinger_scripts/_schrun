@@ -11,8 +11,8 @@ __schrun() {
     asl=(\
         protein
         backbone
-        chain
-        a.ele
+        'chain '
+        'a.ele '
         'protein and res.num'
         solute
         ligand
@@ -47,7 +47,7 @@ __schrun() {
                     {-s,-slice-trj}'[START:END:STEP Use the sliced trajectory]:RANGE:(START\:END\:STEP)' \
                     '-asl[ASL expression to specify the subsystem. Defaults to "not water"]:ASL:("${asl[@]}")' \
                     '-whole[Fix molecules broken by the periodic boundary to make them whole again.]' \
-                    ':IN .cms:_path_files -/ -g "*cms"' \
+                    ':IN .cms:_path_files -/ -g "*.cms"' \
                     ':OUT:(extracted)' \
                     && return 0
                 ;;
@@ -58,7 +58,7 @@ __schrun() {
                     '-rmsd-asl[ASL expression to specify atoms to calculate RMSD]:ASL:("protein" "backbone" "all")' \
                     '-fit-asl[ASL expression to specify atoms to superimpose before calculating RMSD]:ASL("${asl[@]}")' \
                     '-n[Write output data for the N most populated clusters.]:clusters N:(1 2 3 4 5 6 7 8 9)' \
-                    ':IN .cms:_path_files -/ -g "*cms"' \
+                    ':IN .cms:_path_files -/ -g "*.cms"' \
                     ':TRJ:_path_files -/' \
                     ':OUT:(outfile)' \
                     && return 0
@@ -70,7 +70,7 @@ __schrun() {
                     '-concat[concatenates trajectories with updated chemical times (ps)]:TIME:("start_time time_interval")' \
                     '-o[output base name]:OUT:(merged)' \
                     {-s,-slice-trj}'[START:END:STEP Use the sliced trajectory]:RANGE:(START\:END\:STEP)' \
-                    ':IN .cms:_path_files -/ -g "*cms"' \
+                    ':IN .cms:_path_files -/ -g "*.cms"' \
                     '*:TRJ:_path_files -/' \
                     && return 0
                 ;;
@@ -81,7 +81,7 @@ __schrun() {
                     '-ref-mae[Structure file containing reference coordinates]:REF FILE:_path_files -/ -g "*.(cms|mae)"' \
                     '-ref-frame[Specify the frame to use as the reference geometry]:FRAME:(0 -1 n)' \
                     '-asl[ASL expression to specify the subsystem to be superimposed. Defaults to "solute"]:ASL:("${asl[@]}")' \
-                    ':IN .cms:_path_files -/ -g "*cms"' \
+                    ':IN .cms:_path_files -/ -g "*.cms"' \
                     ':TRJ:_path_files -/' \
                     ':OUT:(aligned)' \
                     && return 0
@@ -92,6 +92,19 @@ __schrun() {
                     '--clear[Delete the contents of the environment directory if it already exists, before environment creation.]' \
                     '--prompt[Provides an alternative prompt prefix for this environment.]' \
                     '*:ENV_DIR:(schrodinger.ve "")' \
+                    && return 0
+                ;;
+            (rebuild_cms.py)
+                _arguments \
+                    {-h,--help}'[show help message and exit]' \
+                    {-v,-version}"[Show the program's version and exit.]" \
+                    '-make_comp_ct[make component cts]' \
+                    '-make_full_ct[make full_system ct]' \
+                    '-membrane_asl[MEMBRANE_ASL ASL for membrane]:ASL:("${asl[@]}")' \
+                    '-solvent_asl[SOLVENT_ASL ASL for solvent]:ASL:("${asl[@]}")' \
+                    '-force_field[FORCE_FIELD OPLS_2005 or OPLS3e]:FField:(OPLS3e OPLS_2005)' \
+                    ':IN .cms/.mae:_path_files -/ -g "*.cms|*.mae"' \
+                    ':OUT' \
                     && return 0
                 ;;
         esac
@@ -107,6 +120,7 @@ _schrodinger_tools() {
         'trj_cluster.py:Cluster trajectory frames'
         'trj_merge.py:Merge Desmond trajectories.'
         'trj_align.py:Transforms all coordinates in the frame with respect to the reference coordinates.'
+        'rebuild_cms.py:Rebuild cms file Connection Tables (CTs).'
         'schrodinger_virtualenv.py:Creates virtual Python environments that have access to the Schrodinger tools in one or more target directories.'
         )
     _describe 'script' tools
