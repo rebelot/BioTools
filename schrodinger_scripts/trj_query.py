@@ -46,18 +46,6 @@ def logparser(logfile):
     return last_time, elapsed_time, step, frames
 
 
-def get_time(step, frame):
-    return step * frame
-
-
-def get_frame(step, time):
-    return math.floor(time / step)
-
-# t = t0 + dt * f
-# frames = (te - t0) / dt
-# dt = (te - t0) / frames
-# f = (t - t0) / dt
-
 def main():
     args = parse_input()
     last_time, elapsed_time, step, frames = logparser(args.logfile)
@@ -67,6 +55,11 @@ def main():
     print('STEP         = ', step)
     print('FRAMES       = ', frames)
     print()
+
+    # t = t0 + dt * f
+    # frames = (te - t0) / dt
+    # dt = (te - t0) / frames
+    # f = (t - t0) / dt
 
     if args.time >= 0:
         print('Nearest frame to time %.2f ps is %d'
