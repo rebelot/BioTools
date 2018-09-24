@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import regex
 import argparse
 import math
@@ -28,9 +31,9 @@ def logparser(logfile):
             last_time = float(regex.search(
                 r'last_time = "(.*)"', line).group(1))
 
-        if 'elapsed_time =' in line:
+        if 'chemical_time =' in line:
             elapsed_time = float(regex.search(
-                r'elapsed_time = "(.*)"', line).group(1))
+                r'chemical_time = "(.*)"', line).group(1))
 
         if 'trajectory = {' in line:
             intraj = True
@@ -70,6 +73,7 @@ def main():
               % (args.frame, elapsed_time + step * args.frame))
 
     print()
+
 
 if __name__ == "__main__":
     main()
