@@ -25,15 +25,13 @@ $SCHRODINGER/run trj_center.py $output_name\_aligned-out.cms $output_name\_extra
 echo "extralc-out.cms extralc_trj written"
 echo
 
-echo "removing
-$(find . -name \"$output_name\_extracted*\")"
+echo removing $(find . -name "$output_name\_extracted*")
 echo "proceed? y/n"
 read input
 [[ $input = "y" ]] && rm -rf $output_name\_extracted* 
 
 echo
-echo "removing
-$(find . -name \"$output_name\_aligned*\")"
+echo removing $(find . -name "$output_name\_aligned*")
 echo "proceed? y/n"
 read input
 [[ $input = "y" ]] && rm -rf $output_name\_aligned*
