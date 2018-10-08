@@ -26,14 +26,14 @@ echo "extralc-out.cms extralc_trj written"
 echo
 
 echo "removing
-$(find . -name $output_name\_extracted*)"
+$(find . -name \"$output_name\_extracted*\")"
 echo "proceed? y/n"
 read input
 [[ $input = "y" ]] && rm -rf $output_name\_extracted* 
 
 echo
 echo "removing
-$(find . -name $output_name\_aligned*)"
+$(find . -name \"$output_name\_aligned*\")"
 echo "proceed? y/n"
 read input
 [[ $input = "y" ]] && rm -rf $output_name\_aligned*
