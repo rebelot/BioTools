@@ -1,37 +1,73 @@
 #!/bin/bash
 
-if [ "$1" = "-h" ]; then
-    echo usage: extralc IN.cms IN_trj extract_asl align_asl center_asl output_name
-    exit
+params=""
+while (( "$#" )); do
+  case "$1" in
+    -h|--help)
+      echo 'usage: trj_eac cms trj -e|--extract ASL -a|--align ASL -c|--center ASL -o|--output filename'
+      exit 1
+      ;;
+    -e|--extract)
+      easl=$2
+      [[ ! $3 =~ ^- ]] && { earg=$3; shift; }
+      shift 2
+      ;;
+    -a|--align)
+      aasl=$2
+      [[ ! $3 =~ ^- ]] && { aarg=$3; shift; }
+      shift 2
+      ;;
+    -c|--center)
+      casl=$2
+      [[ ! $3 =~ ^- ]] && { carg=$3; shift; }
+      shift 2
+      ;;
+    -o|--output)
+      out="$2-"
+      shift 2
+      ;;
+    --) # end argument parsing
+      shift
+      break
+      ;;
+    -*|--*=) # unsupported flags
+      echo "Error: Unsupported flag $1" >&2
+      exit 1
+      ;;
+    *) # preserve positional arguments
+      params="$params $1"
+      shift
+      ;;
+  esac
+done
+
+params=($params)
+cms="${params[0]}"
+trj="${params[1]}"
+
+if [[ ! -z $easl ]]; then
+    echo "extracting \"$easl\" subsystem from $cms..."
+    [[ -z $step ]] && step=e || step="$step""e"
+    $SCHRODINGER/run trj_extract_subsystem.py "$cms" "$out$step" -t "$trj" -asl "$easl" $earg
+    cms="$out$step""-out.cms"
+    trj="$out$step""_trj"
+    echo "written $cms, $trj"
 fi
 
-in_cms=$1
-in_trj=$2
-extr_asl=$3
-al_asl=$4
-c_asl=$5
-output_name=$6
+if [[ ! -z $aasl ]]; then
+    echo "aligning \"$aasl\" subsystem from $cms..."
+    [[ -z $step ]] && step=a || step="$step""a"
+    $SCHRODINGER/run trj_align.py  "$cms" "$trj" "$out$step" -asl "$aasl" $aarg
+    cms="$out$step""-out.cms"
+    trj="$out$step""_trj"
+    echo "written $cms, $trj"
+fi
 
-echo "extracting \"$extr_asl\" subsystem from ${in_cms%.*}..."
-$SCHRODINGER/run trj_extract_subsystem.py "$in_cms" $output_name\_extracted -t "$in_trj" -asl "$extr_asl"
-echo "extracted-out.cms extracted_trj written"
-echo
-echo "aligning \"$al_asl\" subsystem..."
-$SCHRODINGER/run trj_align.py $output_name\_extracted-out.cms $output_name\_extracted_trj $output_name\_aligned -asl "$al_asl"
-echo "aligned-out.cms aligned_trj written"
-echo   
-echo "centering \"$c_asl\" subsystem..."
-$SCHRODINGER/run trj_center.py $output_name\_aligned-out.cms $output_name\_extralc -t $output_name\_aligned_trj -asl "$c_asl"
-echo "extralc-out.cms extralc_trj written"
-echo
-
-echo removing $(find . -name "$output_name\_extracted*")
-echo "proceed? y/n"
-read input
-[[ $input = "y" ]] && rm -rf $output_name\_extracted* 
-
-echo
-echo removing $(find . -name "$output_name\_aligned*")
-echo "proceed? y/n"
-read input
-[[ $input = "y" ]] && rm -rf $output_name\_aligned*
+if [[ ! -z $casl ]]; then
+    echo "centering \"$casl\" subsystem from $cms..."
+    [[ -z $step ]] && step=c || step="$step""c"
+    $SCHRODINGER/run trj_center.py "$cms" "$out$step" -t $trj -asl "$casl" $carg
+    cms="$out$step""-out.cms"
+    trj="$out$step""_trj"
+    echo "written $cms, $trj"
+fi
