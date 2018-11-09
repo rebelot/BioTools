@@ -4,7 +4,7 @@ params=""
 while (( "$#" )); do
   case "$1" in
     -h|--help)
-      echo 'usage: trj_eac cms trj -e|--extract ASL -a|--align ASL -c|--center ASL -o|--output filename'
+      echo 'usage: trj_eac cms trj [-e|--extract ASL args] [-a|--align ASL args] [-c|--center ASL args] [-o|--output filename]'
       exit 1
       ;;
     -e|--extract)
