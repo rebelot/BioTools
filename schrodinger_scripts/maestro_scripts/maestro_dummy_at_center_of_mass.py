@@ -16,26 +16,25 @@ def dummy_center_of_mass():
 
     """
 
-    sts = maestro.get_included_entries()
-    asel = maestro.selected_atoms_get_asl()
-    nst = maestro.analyze.create_new_structure()
+    # get objects in workspace as a single structure
+    st = maestro.workspace_get()
+    # get selected atom indices (n,)
+    sel = maestro.selected_atoms_get()
 
-    for st in sts:
-        selected_atoms = maestro.analyze.get_atoms_from_asl(st, asel)
-        for at in selected_atoms:
-            nst.addAtom(at.element, at.x, at.y, at.z, at.atom_type)
-
-    com = maestro.analyze.center_of_mass(nst)
+    # get center of mass of selected atoms
+    com = maestro.analyze.center_of_mass(st, atom_indices=list(sel))
+    # create dummy atom at com coordinates
     dummySt = maestro.analyze.create_new_structure()
     dummySt.addAtom("P", com[0], com[1], com[2], atom_type=150)
 
+    # add dummy atom to pt and include dummy atom in workspace
     pt = maestro.project_table_get()
     row = pt.importStructure(dummySt, name="COM")
+    row.title = 'COM'
     pt.includeRows([int(row.entry_id)], exclude_others=False)
 
-    maestro.command('workspaceselectionreplace entry.id ' + row.entry_id)
-    maestro.command('repatom rep=cpk at.selected')
-
+    # set sphere representation for dummy atom
+    maestro.command('repatom rep=cpk entry.id ' + row.entry_id)
 
 
 if __name__ == "__main__":
