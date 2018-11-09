@@ -1,42 +1,8 @@
 # BioTools
 
-A collection of bioinformatics tools written by me.
+A collection of bioinformatics tools.
 
 ## Contents:
-```
-BioTools/
-├── README.md
-├── cAlign
-│   ├── bin
-│   │   ├── cAlign.py
-│   │   ├── cal.exe
-│   │   └── cal_custom.exe
-│   ├── src
-│   │   ├── main.c
-│   │   └── main_custom.c
-│   └── tags
-├── getfasta
-├── getpdb
-├── pdbrenumber.py
-├── pyAlign
-├── pyAlign_package
-│   ├── Align.py
-│   ├── InitMatrix.py
-│   ├── NJ.py
-│   ├── SubMatrix.py
-│   ├── __init__.py
-│   ├── db.py
-│   ├── fancy_printer.py
-│   └── tags
-├── pyDotplot.py
-├── pyNJ
-└── schrodinger_scripts
-    ├── _schrun
-    ├── desmond_progress_bar.sh
-    └── maestro_scripts
-        ├── maestro_dummy_at_center_of_mass.py
-        └── maestro_transform.py
-```
 
 ### getfasta
 
@@ -124,6 +90,22 @@ Perform pairwise alignments using a C backend. Interactive.
 
 Trace the course of a molecular dynamics using `desmond_progress_bar.sh *.log` into the job directory.
 
+### trj_boxinfo.py
+
+Report box dimensions over simulation time. (useful for (semi-)anisotropic coupling)
+
+### trj_extralc.sh
+
+Pipeline to extract, align and center a MD.
+
+### trj_interactions.py
+
+Track hydrogen bonds and salt bridges over MD simulation.
+
+### trj_query.py
+
+Query basic informations from MD log file.
+
 ### maestro script: Center of Mass
 
 Places a dummy atom at the center of mass of selected atoms.
@@ -132,6 +114,11 @@ Places a dummy atom at the center of mass of selected atoms.
 
 Perform workspace cartesian transformations; the tool provides ways to define reference points and axes to rotate or translate selected atoms.
 
-### $SCHRODINGER/run completion for zsh
+### maestro script: Interacting
+
+Select interacting (hbond or saltbr) residues within groups
+
+### "$SCHRODINGER/run" completions for zsh
 
 An extensible incipit for the `$SCHRODINGER/run` command tab-completion for zsh. Add it to `$fpath` and make sure completions are enabled. Requires a proxy script named `schrun` in your path: `echo '$SCHRODINGER/run "$@"' > schrun`.
+
