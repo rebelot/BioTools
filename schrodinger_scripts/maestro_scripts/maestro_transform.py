@@ -419,7 +419,6 @@ def translate(x, y, z, w=0, atoms_asl='all', reference_asl='', origin_asl='', ab
     for at in atoms:
         at.xyz = np.array(at.xyz) + T + (reference_com - origin_com)
 
-    ws.update()
     maestro.workspace_set(ws)
 
     maestro.command('endundoblock ')
@@ -456,7 +455,6 @@ def rotate(x, y, z, w=0, atoms_asl='all', reference_asl='', absolute=False, from
         zero = np.array(at.xyz) - com
         at.xyz = zero.dot(R) + com
 
-    ws.update()
     maestro.workspace_set(ws)
 
     maestro.command('endundoblock ')

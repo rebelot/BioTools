@@ -66,13 +66,13 @@ def get_bonds_list(cms, trj, g1, g2=None):
         salt_bridges.append(saltbr)
         hydrogen_bonds.append(hbonds)
 
-        sys.stdout.write('\rframe %4d of %d' % (int(fr.orig_index), fnum))
-        sys.stdout.flush()
+        sys.stderr.write('\rframe %4d of %d' % (int(fr.orig_index), fnum))
+        sys.stderr.flush()
 
     return salt_bridges, hydrogen_bonds
 
 
-def print_output(saltbr_dict, hbonds_dict, fd):
+def print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, fd):
 
     def atmfmt(atom):
         return "{}{:<4} {} {:>10}".format(
@@ -90,6 +90,11 @@ def print_output(saltbr_dict, hbonds_dict, fd):
     for bond, freq in sorted(saltbr_dict.items(), key=lambda x: x[1], reverse=True):
         fd.write("{}      ---      {}: {:>7.2%}\n".format(
             atmfmt(bond[0]), atmfmt(bond[1]), freq))
+
+    fd.write("\n")
+    fd.write("# time sbr hb\n")
+    for sbr, hb, fr in zip(salt_bridges, hydrogen_bonds, trj):
+        fd.write(f"{fr.time} {len(sbr)} {len(hb)}\n")
 
 
 def plot_data(salt_bridges, hydrogen_bonds, trj):
@@ -114,7 +119,7 @@ def main():
     hbonds_dict = bond_counter(hydrogen_bonds)
 
     fd = open(args.o, 'x') if args.o else sys.stdout
-    print_output(saltbr_dict, hbonds_dict, fd)
+    print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, fd)
     fd.close()
 
     if args.plot:
