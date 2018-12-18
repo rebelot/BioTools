@@ -1,79 +1,36 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+from schrodinger.application.desmond.packages import traj
+import sys
 
-import regex
-import argparse
-import math
+trj = traj.read_traj(sys.argv[1])
 
+f = len(trj)
+t0 = trj[0].time
+te = trj[-1].time
+dt = (te - t0) / f
 
-def parse_input():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("logfile", help="MD logfile")
-    parser.add_argument("-t", "--time", default=-1, type=float,
-                        help="Return the left-closest frame to time TIME")
-    parser.add_argument("-f", "--frame", default=-1, type=int,
-                        help="Return the time of the given FRAME")
-    return parser.parse_args()
+print()
+print(f"    frames: {f}")
+print(f"start_time: {t0} ps")
+print(f" last_time: {te} ps")
+print(f"  interval: {dt:.5f} ps/f", end=" ")
 
-
-def logparser(logfile):
-    with open(logfile, 'r') as lf:
-        log = [line.strip() for line in lf.readlines()]
-
-    last_time = 1
-    elapsed_time = 0
-    step = 'none'
-    intraj = False
-
-    for line in log:
-
-        if 'last_time =' in line:
-            last_time = float(regex.search(
-                r'last_time = "(.*)"', line).group(1))
-
-        if 'chemical_time =' in line:
-            elapsed_time = float(regex.search(
-                r'chemical_time = "(.*)"', line).group(1))
-
-        if 'trajectory = {' in line:
-            intraj = True
-
-        if intraj and 'interval =' in line:
-            step = float(regex.search(r'interval = "(.*)"', line).group(1))
-
-        if intraj and '}' in line:
-            intraj = False
-
-    frames = math.ceil((last_time - elapsed_time) / step)
-
-    return last_time, elapsed_time, step, frames
-
-
-def main():
-    args = parse_input()
-    last_time, elapsed_time, step, frames = logparser(args.logfile)
-    print()
-    print('LAST_TIME    = ', last_time)
-    print('ELAPSED_TIME = ', elapsed_time)
-    print('STEP         = ', step)
-    print('FRAMES       = ', frames)
+if len(sys.argv) > 2 and sys.argv[2] == "-test":
+    test = sum((trj[i+1].time - trj[i].time) / dt for i in range(len(trj) - 1))/f
+    print(f"(consistency: {test:.2%})")
+else:
     print()
 
-    # t = t0 + dt * f
-    # frames = (te - t0) / dt
-    # dt = (te - t0) / frames
-    # f = (t - t0) / dt
+# t = t0 + dt * f
+# frames = (te - t0) / dt
+# dt = (te - t0) / frames
+# f = (t - t0) / dt
 
-    if args.time >= 0:
-        print('Nearest frame to time %.2f ps is %d'
-              % (args.time, math.floor((args.time - elapsed_time) / step)))
+# if args.time >= 0:
+#     print('Nearest frame to time %.2f ps is %d'
+#           % (args.time, math.floor((args.time - elapsed_time) / step)))
 
-    if args.frame >= 0:
-        print('Chemical time of frame %d is %.2f ps'
-              % (args.frame, elapsed_time + step * args.frame))
+# if args.frame >= 0:
+#     print('Chemical time of frame %d is %.2f ps'
+#           % (args.frame, elapsed_time + step * args.frame))
 
-    print()
-
-
-if __name__ == "__main__":
-    main()
+print()
