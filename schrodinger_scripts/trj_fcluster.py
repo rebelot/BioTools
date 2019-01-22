@@ -34,9 +34,9 @@ def main():
         rmsd_matrix.reshape(int(np.sqrt(len(rmsd_matrix))), int(np.sqrt(len(rmsd_matrix))))
 
     elif args.pre:
-        f = len(traj)
+        f = len(trj)
         rmsd_matrix = np.empty((f,f))
-        pos = np.array([fr.pos(rmsd_gids) for fr in traj])
+        pos = np.array([fr.pos(rmsd_gids) for fr in trj])
         tot = f * (f - 1) / 2
         c = 0
         for i in range(f):
