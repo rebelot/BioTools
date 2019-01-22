@@ -13,12 +13,12 @@ def main():
     args.add_argument('out', help="Output base name")
     args.add_argument('rmsd', help="Define ASL for RMSD calculation")
     args.add_argument('-fit', help="Define ASL for fitting")
-    args.add_argument('-n', help="Max number of clusters")
+    args.add_argument('-n', help="Max number N of clusters")
     args.add_argument('-s', help="Split trajectory in sub trajectories containing frames of each cluster", action="store_true")
     args.add_argument('-pre', help="Speed up calculation if using prealigned (fitted) traj, or if fitting is not required", action="store_true")
     args.add_argument('-tree', help="View cluster dendrogram and exit", action="store_true")
-    args.add_argument('-save', help="Store intermediate distance matrix", default=False)
-    args.add_argument('-restore', help="Load intermediate distance matrix from file", default=False)
+    args.add_argument('-save', help="Store intermediate distance matrix to FILE", default=False)
+    args.add_argument('-restore', help="Load intermediate distance matrix from FILE", default=False)
     args = args.parse_args()
 
     # read trajectory
@@ -27,9 +27,6 @@ def main():
     # specify atoms to consider form rmsd calc and fitting
     rmsd_aids = cms.select_atom(args.rmsd)
     rmsd_gids = topo.aids2gids(cms, rmsd_aids, include_pseudoatoms=False)
-
-    system_asl = cms.select_atom('all')
-    system_gids = topo.aids2gids(cms, system_asl, include_pseudoatoms=False)
 
     # calc. distance matrix
     if args.restore:
@@ -85,7 +82,7 @@ def main():
         traj.write_traj(trj[elements], f"{args.out}_{i}_trj")
 
     for i,centroid in enumerate(centroids):
-        cms.setXYZ(trj[centroid].getpos()).write("f{args.out}_{i}-out.mae")
+        cms.setXYZ(trj[centroid].pos()).write("f{args.out}_{i}-out.mae")
         
 
 if __name__ == "__main__":
