@@ -22,7 +22,7 @@ def main():
     args = args.parse_args()
 
     # read trajectory
-    msys, cms, trj = traj_util.read_cms_and_traj("./LCAT_MTD_SPC_3-out.cms")
+    msys, cms, trj = traj_util.read_cms_and_traj(args.cms)
 
     # specify atoms to consider form rmsd calc and fitting
     rmsd_aids = cms.select_atom(args.rmsd)
