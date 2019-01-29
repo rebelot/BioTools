@@ -1,3 +1,5 @@
+#!/opt/schrodinger/suites2018-4/run
+
 from schrodinger.application.desmond.packages import traj_util, topo
 from schrodinger.structutils import measure
 import numpy as np
@@ -20,32 +22,33 @@ def main():
     g1_aids = cms.select_atom(args.g1)
     g1_st = cms.extract(g1_aids)
     g1_gids = topo.aids2gids(cms, g1_aids)
+    g1_atoms = list(g1_st.atom)
 
     g2_aids = cms.select_atom(args.g2)
     g2_st = cms.extract(g2_aids)
     g2_gids = topo.aids2gids(cms, g2_aids)
+    g2_atoms = list(g2_st.atom)
 
     distances = []
-    info = []
     for fr in trj:
         g1_st.setXYZ(fr.pos(g1_gids))
         g2_st.setXYZ(fr.pos(g2_gids))
         res = measure.get_shortest_distance(g1_st, st2=g2_st)
-        distances.append(res[0])
-        a1 = list(g1_st.atom)[res[1]]
-        a2 = list(g2_st.atom)[res[2]]
-        info.append([f"{a1.pdbres} {a1.resnum}", f"{a2.pdbres} {a2.resnum}"])
+        distances.append(res)
+    distances = np.array(res)
+
 
     if args.plot:
+        o = args.outpu if args.outpu else 'trj_shortes_periodic_distance'
         plt.plot(distances)
         plt.xlabel("Frame index")
         plt.ylabel("Distance (Å)")
-        plt.show(block=False)
+        plt.savefig(o + '.png')
 
     out = args.output if args.output else sys.stdout
     with open(out) as fh:
-        for f, d, i in enumerate(zip(distances, info)):
-            fh.write(f"{f:<4} {i[0]} - {i[1]}: {d}")
+        for d in distances:
+            fh.write(f'{d[0]} {g1_atoms[d[1]].pdbres}{g1_atoms[d[1]].resnum} {g2_atoms[d[2]].pdbres}{g2_atoms[d[2]].resnum}\n')
 
 if __name__ == "__main__":
     main()
