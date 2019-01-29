@@ -1,3 +1,5 @@
+#!/opt/schrodinger/suites2018-4/run
+
 from schrodinger.application.desmond.packages import traj
 import argparse
 import math
