@@ -1,4 +1,4 @@
-#!/opt/schrodinger/suites2018-3/run
+#!/opt/schrodinger/suites2018-4/run
 
 from schrodinger.application.desmond.packages import topo, traj_util, traj
 from schrodinger.structutils import interactions
@@ -17,12 +17,12 @@ def cml():
                 atoms will be returned.""")
     parser.add_argument("cms", help="Input cms file")
     parser.add_argument("-g1", help="define group 1",
-                        metavar="ASL", required=1)
+                        metavar="ASL", default=None)
     parser.add_argument("-g2", help="define group 2",
                         metavar="ASL", default=None)
     parser.add_argument("-p", "--plot", help="plot bond nr over time",
                         action="store_true")
-    parser.add_argument("-o", help="output filename", metavar="FILE")
+    parser.add_argument("-o", help="output base filename (.txt and/or .png extensions are added automatically)", metavar="FILE")
 
     args = parser.parse_args()
     return args
@@ -39,7 +39,7 @@ def bond_counter(bonds_list):
     return d
 
 
-def get_bonds_list(cms, trj, g1, g2=None):
+def get_bonds_list(cms, trj, g1=None, g2=None):
 
     # Do not extract the full system if not required
     extract_asl = "({}) OR ({})".format(g1, g2) if (g1 and g2) else "all"
@@ -48,8 +48,8 @@ def get_bonds_list(cms, trj, g1, g2=None):
     extract_st = cms.extract(extract_aids)
     extract_gids = topo.aids2gids(cms, extract_aids, include_pseudoatoms=False)
 
-    group1 = cms.select_atom(g1)
-    group2 = cms.select_atom(g2) if g2 else g2
+    group1 = analyze.evaluate_asl(extract_st, g1)
+    group2 = analyze.evaluate_asl(extract_st, g2) if g2 else g2
 
     salt_bridges = []
     hydrogen_bonds = []
@@ -97,7 +97,7 @@ def print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, fd
         fd.write(f"{fr.time} {len(sbr)} {len(hb)}\n")
 
 
-def plot_data(salt_bridges, hydrogen_bonds, trj):
+def plot_data(salt_bridges, hydrogen_bonds, trj, out):
     fig, axs = plt.subplots(2, 1)
     axs[0].plot([fr.time for fr in trj], [
                 len(bonds) for bonds in salt_bridges])
@@ -105,7 +105,7 @@ def plot_data(salt_bridges, hydrogen_bonds, trj):
     axs[1].plot([fr.time for fr in trj], [
                 len(bonds) for bonds in hydrogen_bonds])
     axs[1].set_title('hydrogen bonds')
-    plt.show()
+    fig.savefig(out + '.png')
 
 
 def main():
@@ -118,12 +118,12 @@ def main():
     saltbr_dict = bond_counter(salt_bridges)
     hbonds_dict = bond_counter(hydrogen_bonds)
 
-    fd = open(args.o, 'x') if args.o else sys.stdout
+    fd = open(args.o + '.txt', 'x') if args.o else sys.stdout
     print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, fd)
     fd.close()
 
     if args.plot:
-        plot_data(salt_bridges, hydrogen_bonds, trj)
+        plot_data(salt_bridges, hydrogen_bonds, trj, args.o)
 
 
 if __name__ == "__main__":
