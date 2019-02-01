@@ -48,7 +48,7 @@ def get_interacting(asl_g1, asl_g2=None, structure=None):
     #     atoms.append(bond[1].index)
 
     in_maestro = True   # TODO: check if inside maestro
-    if in_maestro:
+    if in_maestro and len(atoms) > 0:
         maestro.command('workspaceselectionadd fillres a.n ' +
                         ', '.join(str(atom.index) for atom in atoms))
     return atoms
@@ -60,7 +60,7 @@ def main():
         get_interacting(selected_atoms)
     else:
         maestro.warning(
-            'Select something or use:\n"pythonrun maestro_interacting.get_interacting \'group1\' \'group2\'"\nfrom the command prompt')
+            'Select something or use:\n"pythonrun maestro_interacting.get_interacting \"group1\" \"group2\""\nfrom the command prompt')
 
 
 if __name__ == "__main__":
