@@ -11,12 +11,16 @@ import argparse
 
 
 def main():
-    args = argparse.ArgumentParser(description='Compute the shortest distance between two sets of atoms across orthorombic PBC')
+    args = argparse.ArgumentParser(
+        description='Compute the shortest distance between two sets of atoms across orthorombic PBC')
     args.add_argument('cms', help='cms input file')
-    args.add_argument('-g1', help='Define first group of atoms', metavar='ASL', required=True)
-    args.add_argument('-g2', help='Define second gruoup of atoms', metavar='ASL')
+    args.add_argument('-g1', help='Define first group of atoms',
+                      metavar='ASL', required=True)
+    args.add_argument( '-g2',
+                      help='Define second gruoup of atoms', metavar='ASL')
     args.add_argument('-o', help='Save results in file', metavar='FILE')
     args.add_argument('-p', help='Create plot')
+    args.add_argument('-noself', help='Do not compute distances within the same cell. This is useful to calculate the distance between a molecule and its periodic images')
     args.parse_args()
 
     msys, cms, trj = traj_util.read_cms_and_traj(args.cms)
@@ -34,7 +38,6 @@ def main():
     i = (-1, 1, 0)
     c = np.array(list(product(i, i, i)))
 
-
     def get_periodic_images(P, c, box):
         for c in c * box:
             yield P + c
@@ -51,18 +54,20 @@ def main():
         sys.stdout.write(f'\rFrame {fr.orig_index} of {n}')
 
     dist = np.array(dist)
-    
+
     out = sys.stdout if not args.o else args.o + '.dat'
     with open(out) as fh:
         for d in dist:
-            fh.write(f'{d[0]} {g1_atoms[d[1]].pdbres}{g1_atoms[d[1]].resnum} {g2_atoms[d[2]].pdbres}{g2_atoms[d[2]].resnum}\n')
+            fh.write(
+                f'{d[0]} {g1_atoms[d[1]].pdbres}{g1_atoms[d[1]].resnum} {g2_atoms[d[2]].pdbres}{g2_atoms[d[2]].resnum}\n')
 
     if args.p:
         o = args.o if args.o else 'trj_shortes_periodic_distance'
-        plt.plot([fr.time for fr in trj], dist[:,0])
+        plt.plot([fr.time for fr in trj], dist[:, 0])
         plt.xlabel('time (ps)')
         plt.ylabel('distance (Å)')
         plt.savefig(o + '.png')
+
 
 if __name__ == "__main__":
     main()
