@@ -41,15 +41,10 @@ def bond_counter(bonds_list):
 
 def get_bonds_list(cms, trj, g1=None, g2=None):
 
-    # Do not extract the full system if not required
-    extract_asl = "({}) OR ({})".format(g1, g2) if (g1 and g2) else "all"
+    system_st = cms.extract(cms.select_atom('all'))
 
-    extract_aids = cms.select_atom(extract_asl)
-    extract_st = cms.extract(extract_aids)
-    extract_gids = topo.aids2gids(cms, extract_aids, include_pseudoatoms=False)
-
-    group1 = analyze.evaluate_asl(extract_st, g1)
-    group2 = analyze.evaluate_asl(extract_st, g2) if g2 else g2
+    group1 = analyze.evaluate_asl(system_st, g1)
+    group2 = analyze.evaluate_asl(system_st, g2) if g2 else g2
 
     salt_bridges = []
     hydrogen_bonds = []
@@ -57,12 +52,12 @@ def get_bonds_list(cms, trj, g1=None, g2=None):
     fnum = len(trj)
 
     for fr in trj:
-        extract_st.setXYZ(fr.pos(extract_gids))
+        system_st.setXYZ(fr.pos())
         saltbr = interactions.get_salt_bridges(
-            extract_st, group1=group1, group2=group2)
+            system_st, group1=group1, group2=group2,
+            order_by=interactions.OrderBy.InputOrder)
         hbonds = analyze.hbond.get_hydrogen_bonds(
-            extract_st, atoms1=group1, atoms2=group2)
-
+            system_st, atoms1=group1, atoms2=group2)
         salt_bridges.append(saltbr)
         hydrogen_bonds.append(hbonds)
 
