@@ -55,11 +55,11 @@ def main():
 
     dist = np.array(dist)
 
-    out = sys.stdout if not args.o else args.o + '.dat'
-    with open(out) as fh:
-        for d in dist:
-            fh.write(
-                f'{d[0]} {g1_atoms[d[1]].pdbres}{g1_atoms[d[1]].resnum} ({g1_atoms[d[1]].index}) {g2_atoms[d[2]].pdbres}{g2_atoms[d[2]].resnum} ({g1_atoms[d[1]].index})\n')
+    out = sys.stdout if not args.o else open(args.o + '.dat', 'x')
+    for d in dist:
+        out.write(
+            f'{d[0]} {g1_atoms[d[1]].pdbres}{g1_atoms[d[1]].resnum} ({g1_atoms[d[1]].index}) {g2_atoms[d[2]].pdbres}{g2_atoms[d[2]].resnum} ({g1_atoms[d[1]].index})\n')
+    out.close()
 
     if args.p:
         o = args.o if args.o else 'trj_shortes_periodic_distance'
