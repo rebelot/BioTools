@@ -32,7 +32,7 @@ optional arguments:
                         offset base number from which renumbering starts
   -t {atom,het}, --res-type {atom,het}
                         choose which residues to renumber
-  -o1k, --over-1k       if checked, residuse > 1000 will not be renumbered
+  -o1k, --over-1k       if checked, residues > 1000 will not be renumbered
                         from 1
 ```
 
@@ -105,6 +105,18 @@ Track hydrogen bonds and salt bridges over MD simulation.
 ### trj_query.py
 
 Query basic informations from MD log file.
+
+### trj_fcluster.py
+
+Cluster trajectory frames using scipy
+
+### trj_mindist
+
+Find shortest distance between groups of atoms
+
+### trj_periodic_shortest_distance.py
+
+Find shortest distance between groups of atoms, honor PBCs
 
 ### maestro script: Center of Mass
 
