@@ -130,6 +130,10 @@ Perform workspace cartesian transformations; the tool provides ways to define re
 
 Select interacting (hbond or saltbr) residues within groups
 
+### maestro script: B-Select
+
+Select residues which B-factor is above a certain threshold or N residues with the highest B-factor within specified group.
+
 ### "$SCHRODINGER/run" completions for zsh
 
 An extensible incipit for the `$SCHRODINGER/run` command tab-completion for zsh. Add it to `$fpath` and make sure completions are enabled. Requires a proxy script named `schrun` in your path: `echo '$SCHRODINGER/run "$@"' > schrun`.
