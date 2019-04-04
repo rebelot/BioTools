@@ -10,10 +10,11 @@ def align(seq_j, seq_i, mat='p250', g_op=-12.0, g_ex=-4.0):
     for i in range(1, len(init_matrix)):
         init_matrix[i].insert(0, penalty(i))
 
-    # for row in range(len(init_matrix)):
-    #     for column in range(len(init_matrix[row])):
-    #         print("{:5.1f}".format(init_matrix[row][column]), end='')
-    #     print()
+    for row in range(len(init_matrix)):
+        for column in range(len(init_matrix[row])):
+            print("{:5.1f}".format(init_matrix[row][column]), end='')
+        print()
+
     cell, square = 0, ((len(init_matrix) - 1) * (len(init_matrix[0]) - 1))
     transform_matrix = init_matrix.copy()
     track = {}       # {child:parent}
@@ -46,10 +47,12 @@ def align(seq_j, seq_i, mat='p250', g_op=-12.0, g_ex=-4.0):
                                                                        len(transform_matrix), j,
                                                                        len(transform_matrix[0])))
 
-    # for row in range(len(transform_matrix)):
-    #     for column in range(len(transform_matrix[row])):
-    #         print("{:6.1f}".format(transform_matrix[row][column]), end='')
-    #     print()
+    print()
+    print()
+    for row in range(len(transform_matrix)):
+        for column in range(len(transform_matrix[row])):
+            print("{:6.1f}".format(transform_matrix[row][column]), end='')
+        print()
 
     path = []
     step_i, step_j = len(init_matrix) - 1, len(init_matrix[0]) - 1
@@ -115,17 +118,11 @@ if __name__ == '__main__':
 
     # P01130 Human LDL Receptor
     # Q99087 Xenopus laevis LDL Receptor 1
-    seq_x = getseq('Q59990')
-    seq_y = getseq('Q6V0L0')
+    # seq_x = getseq('Q59990')
+    # seq_y = getseq('Q6V0L0')
     # getseq('P01130', erase=True)
     # getseq('Q99087', erase=True)
-    #seq_x = 'ADCNYRQCLCRPM'
-    #seq_y = 'AYCYNRCKCRDP'
+    seq_x = 'AKA'
+    seq_y = 'AA'
     al_x, al_y, ident, max_score = align(seq_x, seq_y, mat='custom', g_op=-11, g_ex=-2)
-    print_alignment(al_x, al_y, ident, max_score, filename='Allineamelo_Hcyp26c1_2ve3_op11_ex2')
-
-    print()
-    print(">2VE3")
-    print(al_x)
-    print(">Cyp26c1")
-    print(al_y)
+    print_alignment(al_x, al_y, ident, max_score, filename='Allineamelo')
