@@ -1,4 +1,4 @@
-from pyAlign_package import SubMatrix
+import SubMatrix
 
 
 def comparison(seq_x, seq_y, mat='b62', window=1, tol=0, show=None):

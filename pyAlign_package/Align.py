@@ -1,4 +1,4 @@
-from pyAlign_package import InitMatrix
+import InitMatrix
 import sys
 
 def align(seq_j, seq_i, mat='p250', g_op=-12.0, g_ex=-4.0):
