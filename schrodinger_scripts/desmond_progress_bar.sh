@@ -12,7 +12,11 @@ while [[ "$(tail -n 1 $LOGFILE | awk '{ print $1 }')" =~ Chemical ]]; do
     ctns=$(python -c "print($ct/1000)")
     comp=$(python -c "print(100*$ctns/$TIME)")
     sec_left=$(python -c "print(round(24*3600 * ($TIME - $ctns)/$v ))")
-    eta=$(printf '%0.2dd:%0.2dh:%0.2dm:%0.2ds\n' $(($sec_left/86400)) $(($sec_left/3600%24)) $(($sec_left%3600/60)) $(($sec_left%60)))
+    days=$(python -c "print($sec_left/86400)")
+    hours=$(python -c "print($sec_left/3600%24)")
+    minutes=$(python -c "print($sec_left%3600/60)")
+    seconds=$(python -c "print($sec_left/60)")
+    eta=$(printf '%0.2dd:%0.2dh:%0.2dm:%0.2ds\n' $days $hours $minutes $seconds)
     
     printf "\e[0K\rCompletion: %.2f of $TIME ns (%.2f%%)  @ $v ns/day     ETA: %15s" $ctns $comp $eta
     sleep 1
