@@ -22,22 +22,23 @@ def main():
     rmsd_gids = topo.aids2gids(cms, rmsd_aids)
     ref_rmsd_st = cms.extract(rmsd_aids)
 
-    fit_aids = cms.select_atom(args.fit)
-    fit_gids = topo.aids2gids(cms, fit_aids)
-    ref_fit_st = cms.extract(fit_aids)
+    if args.fit:
+        fit_aids = cms.select_atom(args.fit)
+        fit_gids = topo.aids2gids(cms, fit_aids)
+        ref_fit_st = cms.extract(fit_aids)
+        cur_fit_st = ref_fit_st.copy()
+        fit_atoms = list(range(1, ref_fit_st.atom_total + 1))
 
     cur_rmsd_st = ref_rmsd_st.copy()
-    cur_fit_st = ref_fit_st.copy()
 
     rmsd_atoms = list(range(1, ref_rmsd_st.atom_total + 1))
-    fit_atoms = list(range(1, ref_fit_st.atom_total + 1))
 
     n = len(trj)
     RMSD = []
     for fr in trj:
         cur_rmsd_st.setXYZ(fr.pos(rmsd_gids))
-        cur_fit_st.setXYZ(fr.pos(fit_gids))
         if args.fit:
+            cur_fit_st.setXYZ(fr.pos(fit_gids))
             R = rmsd.get_super_transformation_matrix(ref_fit_st, fit_atoms, cur_fit_st, fit_atoms)
             transform.transform_structure(cur_rmsd_st, R)
         res = rmsd.calculate_in_place_rmsd(ref_rmsd_st, rmsd_atoms, cur_rmsd_st, rmsd_atoms)
@@ -47,7 +48,7 @@ def main():
     fh = open(args.o + '.dat', 'x') if args.o else sys.stdout
 
     for fr, r in zip(trj, RMSD):
-        fh.write(f"{fr.time} {r}")
+        fh.write(f"{fr.time} {r}\n")
 
     if args.p:
         out = args.o + '.png' if args.o else 'rmsd_calc.png'

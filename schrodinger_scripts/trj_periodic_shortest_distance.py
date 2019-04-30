@@ -74,9 +74,9 @@ def main():
     dist = np.array(dist)
 
     out = sys.stdout if not args.o else open(args.o + '.dat', 'x')
-    for d in dist:
+    for d, fr in zip(dist, trj):
         out.write(
-            f'{d[0]} {g1_atoms[int(d[1])].pdbres}{g1_atoms[int(d[1])].resnum} ({g1_atoms[int(d[1])].index}) {g2_atoms[int(d[2])].pdbres}{g2_atoms[int(d[2])].resnum} ({g1_atoms[int(d[1])].index})\n')
+            f'{fr.time} {d[0]} {g1_atoms[int(d[1])].pdbres}{g1_atoms[int(d[1])].resnum} ({g1_atoms[int(d[1])].index}) {g2_atoms[int(d[2])].pdbres}{g2_atoms[int(d[2])].resnum} ({g1_atoms[int(d[1])].index})\n')
     out.close()
 
     if args.p:
