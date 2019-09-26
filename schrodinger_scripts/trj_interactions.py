@@ -1,8 +1,9 @@
-#!/opt/schrodinger/suites2018-4/run
+#!/opt/schrodinger/suites2019-3/run
 
 from schrodinger.application.desmond.packages import topo, traj_util, traj
 from schrodinger.structutils import interactions
 from schrodinger.protein.analysis import analyze
+import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import argparse
@@ -10,7 +11,7 @@ import argparse
 
 def cml():
     parser = argparse.ArgumentParser(
-                description="""Calculate all nonbonded interactions within or
+               description="""Calculate all nonbonded interactions within or
                 between the specified atoms.  If group2 is given, then this
                 script will return interacions between the two groups of
                 atoms.  Else, nonbonded interactions within a single group of
@@ -23,6 +24,8 @@ def cml():
     parser.add_argument("-p", "--plot", help="plot bond nr over time",
                         action="store_true")
     parser.add_argument("-o", help="output base filename (.txt and/or .png extensions are added automatically)", metavar="FILE")
+    # parser.add_argument("-em", help="output indexed existence map", action="store_true")
+    parser.add_argument('-s', help='slice trajectory', metavar='START:END:STEP', default='::')
 
     args = parser.parse_args()
     return args
@@ -39,7 +42,7 @@ def bond_counter(bonds_list):
     return d
 
 
-def get_bonds_list(cms, trj, g1=None, g2=None):
+def get_bonds_list(cms, trj, g1=None, g2=None, ses='::'):
 
     system_st = cms.extract(cms.select_atom('all'))
 
@@ -50,8 +53,8 @@ def get_bonds_list(cms, trj, g1=None, g2=None):
     hydrogen_bonds = []
 
     fnum = len(trj)
-
-    for fr in trj:
+    start, end, step = map(lambda x: int(x) if x else None, ses.split(':'))
+    for fr in trj[start:end:step]:
         system_st.setXYZ(fr.pos())
         saltbr = interactions.get_salt_bridges(
             system_st, group1=group1, group2=group2,
@@ -67,7 +70,7 @@ def get_bonds_list(cms, trj, g1=None, g2=None):
     return salt_bridges, hydrogen_bonds
 
 
-def print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, fd):
+def print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, em_hb, em_sb, fd):
 
     def atmfmt(atom):
         return "{}{:<4} {} {:>10}".format(
@@ -76,31 +79,74 @@ def print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, fd
 
     fd.write("\n")
     fd.write(26 * "-" + " HBONDS " + 26 * "-" + '\n')
-    for bond, freq in sorted(hbonds_dict.items(), key=lambda x: x[1], reverse=True):
-        fd.write("{}      ---      {}: {:>7.2%}\n".format(
-            atmfmt(bond[0]), atmfmt(bond[1]), freq))
+    for i, (bond, freq) in enumerate(sorted(hbonds_dict.items(), key=lambda x: x[1], reverse=True)):
+        fd.write("{:4}   {}      ---      {}: {:>7.2%}\n".format(
+            i, atmfmt(bond[0]), atmfmt(bond[1]), freq))
 
     fd.write("\n")
     fd.write(23 * "-" + " SALT BRIDGES " + 23 * "-" + '\n')
-    for bond, freq in sorted(saltbr_dict.items(), key=lambda x: x[1], reverse=True):
-        fd.write("{}      ---      {}: {:>7.2%}\n".format(
-            atmfmt(bond[0]), atmfmt(bond[1]), freq))
+    for i, (bond, freq) in enumerate(sorted(saltbr_dict.items(), key=lambda x: x[1], reverse=True)):
+        fd.write("{:4}   {}      ---      {}: {:>7.2%}\n".format(
+            i, atmfmt(bond[0]), atmfmt(bond[1]), freq))
 
-    fd.write("\n")
-    fd.write("# time sbr hb\n")
+
+def makedat(salt_bridges, hydrogen_bonds, em_hb, em_sb, trj, out):
+    fd_hbsbt = open(out + '-cumulative.dat', 'x')
+    fd_hbsbt.write("# time sbr hb\n")
     for sbr, hb, fr in zip(salt_bridges, hydrogen_bonds, trj):
-        fd.write(f"{fr.time} {len(sbr)} {len(hb)}\n")
+        fd_hbsbt.write(f"{fr.time} {len(sbr)} {len(hb)}\n")
+
+    fd_hbem = open(out + '-HBEM.dat', 'x')
+    fd_hbem.write("# HB Existence Map\n")
+    for line in em_hb:
+        fd_hbem.write(' '.join(str(i) for i in line))
+        fd_hbem.write('\n')
+
+    fd_sbem = open(out + '-SBEM.dat', 'x')
+    fd_sbem.write("# SB Existence Map\n")
+    for line in em_sb:
+        fd_sbem.write(' '.join(str(i) for i in line))
+        fd_sbem.write('\n')
 
 
-def plot_data(salt_bridges, hydrogen_bonds, trj, out):
+def plot_data(salt_bridges, hydrogen_bonds, em_hb, em_sb, trj, out, ses='::'):
+    start, end, step = map(lambda x: int(x) if x else None, ses.split(':'))
     fig, axs = plt.subplots(2, 1)
-    axs[0].plot([fr.time for fr in trj], [
+    axs[0].plot([fr.time for fr in trj[start:end:step]], [
                 len(bonds) for bonds in salt_bridges])
     axs[0].set_title('salt bridges')
-    axs[1].plot([fr.time for fr in trj], [
+    axs[1].plot([fr.time for fr in trj[start:end:step]], [
                 len(bonds) for bonds in hydrogen_bonds])
     axs[1].set_title('hydrogen bonds')
     fig.savefig(out + '.png')
+
+    em_sb_ratio = int(em_sb.shape[1] / em_sb.shape[0])
+    em_hb_ratio = int(em_hb.shape[1] / em_hb.shape[0])
+    # em_hb_offset = len(em_hb) * em_hb_ratio - em_hb.shape[1]
+    # em_sb_offset = len(em_sb) * em_sb_ratio - em_sb.shape[1]
+    fig, axs = plt.subplots(2, 1)
+    axs[0].imshow(em_sb.repeat(em_sb_ratio, axis=0))
+    axs[0].set_title('salt bridges')
+    axs[0].set_yticks(np.arange(0, len(em_sb) * em_sb_ratio, em_sb_ratio))
+    axs[0].set_yticklabels(list(map(lambda x: int(x), axs[0].get_yticks()/em_sb_ratio)))
+
+    axs[1].imshow(em_hb.repeat(em_hb_ratio, axis=0))
+    axs[1].set_title('hydrogen bonds')
+    axs[1].set_yticks(np.arange(0, len(em_hb) * em_hb_ratio, em_hb_ratio))
+    axs[1].set_yticklabels(list(map(lambda x: int(x), axs[1].get_yticks()/em_hb_ratio)))
+    fig.set_size_inches(20,30)
+    fig.savefig(out + '-emap.png')
+
+def create_existence_map(interaction_list):
+    d = {}
+    for i, bonds_per_frame in enumerate(interaction_list):
+        for bond in bonds_per_frame:
+            d.setdefault(bond, [])
+            d[bond].append(i)
+    em = np.zeros((len(d.keys()), len(interaction_list)))
+    for i, pair_frindex in enumerate(sorted(d.items(), key=lambda x: len(x[1]), reverse=True)):
+        em[i,pair_frindex[1]] = 1
+    return em
 
 
 def main():
@@ -108,17 +154,21 @@ def main():
 
     _, cms, trj = traj_util.read_cms_and_traj(args.cms)
 
-    salt_bridges, hydrogen_bonds = get_bonds_list(cms, trj, args.g1, args.g2)
+    salt_bridges, hydrogen_bonds = get_bonds_list(cms, trj, args.g1, args.g2, args.s)
 
     saltbr_dict = bond_counter(salt_bridges)
     hbonds_dict = bond_counter(hydrogen_bonds)
 
+    em_sb = create_existence_map(salt_bridges)
+    em_hb = create_existence_map(hydrogen_bonds)
+
     fd = open(args.o + '.txt', 'x') if args.o else sys.stdout
-    print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, fd)
+    print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, em_hb, em_sb, fd)
+    makedat(salt_bridges, hydrogen_bonds, em_hb, em_sb, trj, args.o)
     fd.close()
 
     if args.plot:
-        plot_data(salt_bridges, hydrogen_bonds, trj, args.o)
+        plot_data(salt_bridges, hydrogen_bonds, em_hb, em_sb, trj, args.o, args.s)
 
 
 if __name__ == "__main__":
