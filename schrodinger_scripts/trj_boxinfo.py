@@ -1,4 +1,4 @@
-#!/opt/schrodinger/suites2018-4/run
+#!/opt/schrodinger/suites2019-3/run
 from schrodinger.application.desmond.packages import traj_util
 import numpy as np
 import pandas as pd
