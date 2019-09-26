@@ -3,3 +3,5 @@ tags
 .DS_Store
 __pycache__
 .idea
+.vim/
+.vscode/
