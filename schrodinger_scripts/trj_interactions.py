@@ -91,18 +91,18 @@ def print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, em
 
 
 def makedat(salt_bridges, hydrogen_bonds, em_hb, em_sb, trj, out):
-    fd_hbsbt = open(out + '-cumulative.dat', 'x')
+    fd_hbsbt = open(out + '-cumulative.dat', 'w')
     fd_hbsbt.write("# time sbr hb\n")
     for sbr, hb, fr in zip(salt_bridges, hydrogen_bonds, trj):
         fd_hbsbt.write(f"{fr.time} {len(sbr)} {len(hb)}\n")
 
-    fd_hbem = open(out + '-HBEM.dat', 'x')
+    fd_hbem = open(out + '-HBEM.dat', 'w')
     fd_hbem.write("# HB Existence Map\n")
     for line in em_hb:
         fd_hbem.write(' '.join(str(i) for i in line))
         fd_hbem.write('\n')
 
-    fd_sbem = open(out + '-SBEM.dat', 'x')
+    fd_sbem = open(out + '-SBEM.dat', 'w')
     fd_sbem.write("# SB Existence Map\n")
     for line in em_sb:
         fd_sbem.write(' '.join(str(i) for i in line))
@@ -162,7 +162,7 @@ def main():
     em_sb = create_existence_map(salt_bridges)
     em_hb = create_existence_map(hydrogen_bonds)
 
-    fd = open(args.o + '.txt', 'x') if args.o else sys.stdout
+    fd = open(args.o + '.txt', 'w') if args.o else sys.stdout
     print_output(salt_bridges, hydrogen_bonds, saltbr_dict, hbonds_dict, trj, em_hb, em_sb, fd)
     makedat(salt_bridges, hydrogen_bonds, em_hb, em_sb, trj, args.o)
     fd.close()
