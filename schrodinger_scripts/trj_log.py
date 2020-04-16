@@ -26,6 +26,7 @@ def main():
     TIME = float(m.split()[-1].replace('"', '')) / 1000
     fh.close()
 
+    i = 0
     while True:
         fh = open(LOGFILE, 'r')
         LOG = fh.readlines()
@@ -43,6 +44,8 @@ def main():
             ETA = f'{DAY:02.0f}d:{HRS:02.0f}h:{MIN:02.0f}m:{SEC:02.0f}s'
             print(
                 f'Completion: {CT:.2f} of {TIME} ns ({COMP:.2%})  @ {V} ns/day     ETA: {ETA:15s}\r', end='')
+            print(i)
+            i += 1
         else:
             m = re.findall('Chemical time:.*', ''.join(LOG))
             if len(m) == 0:
