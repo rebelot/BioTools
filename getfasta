@@ -6,13 +6,16 @@
 
 local USAGE UNIPROT
 
-USAGE="Usage: getfasta [PROT_ID]"
+USAGE="Usage: getfasta [PROT_ID, ]"
 UNIPROT="https://www.uniprot.org/uniprot/IDhere.fasta"
 
 if [[ ! $# -eq 1 ]]; then           # check for arguments 
   echo $USAGE
-
-else
-    curl -O "${UNIPROT/IDhere/$1}"
-    cat "$1".fasta
+  exit 1
 fi
+
+for code in "$@"; do
+  curl -O "${UNIPROT/IDhere/$code}"
+  cat "$1".fasta
+done
+
