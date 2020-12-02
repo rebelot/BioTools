@@ -124,5 +124,34 @@ simulate {
       }
     }
   }
+    # BIASINGFORCE
+    atom_group = [
+        { atom = "asl:a.pt CA"
+        index = 1
+        name = cm_moi
+        }
+        { atom = "asl:a.e P and r.pt POPC"
+        index = 2
+        name = cm_moi
+        }
+    ]
+    backend = {
+        force.term = {
+            list = [ BiasingForce]
+            BiasingForce = {
+                type = BiasingForce
+                cm_moi = [ {
+                    groups = [1 2]
+                    distance = 25
+                    distance_coeff = 10
+                } ]
+                output = {
+                    first = 0.0
+                    interval = 100.0
+                    name = "$JOBNAME.bforce"
+                }
+            }
+        }
+    }
 }
 

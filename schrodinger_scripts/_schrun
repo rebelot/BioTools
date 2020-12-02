@@ -1,13 +1,20 @@
 #compdef schrun
 
 __schrun() {
-    local context state state_descr line
+    local context state state_descr line schrodinger_runtime
     typeset -A opt_args
     
+    schrodinger_runtime=(\
+        "$SCHRODINGER/mmshare-v5.2/bin/Darwin-x86_64"
+        "$SCHRODINGER/internal/bin"
+        )
+
     _arguments \
-        '1: :_schrodinger_tools' \
-        '*::arg:->args'
-    
+        ":tools:_files -W schrodinger_runtime -g '*.py'" \
+        '*::arguments:_files'\
+        # '*::arg:->args' \
+        # '1: :_schrodinger_tools' \
+
     asl=(\
         protein
         backbone
