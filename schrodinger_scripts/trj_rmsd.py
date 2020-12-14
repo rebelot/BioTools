@@ -1,6 +1,6 @@
 #!/opt/schrodinger/suites2019-3/run
 
-from schrodinger.application.desmond.packages import traj_util, topo
+from schrodinger.application.desmond.packages import traj_util, topo, traj, analysis
 from schrodinger.structutils import rmsd, transform
 import argparse
 import numpy as np
@@ -10,51 +10,59 @@ import sys
 def main():
     parser = argparse.ArgumentParser(description="Calculate RMSD of selected atoms over the course of MD simulation.")
     parser.add_argument('cms', help="Input cms file.")
-    parser.add_argument('-rmsd', help="Atom selection for RMSD calculation")
-    parser.add_argument('-fit', help="Atom selection for superposition")
+    parser.add_argument('trj', help="Input trajectory dir")
+    parser.add_argument('-mode', help="RMSD or RMSF, default RMSD", default='RMSD')
+    parser.add_argument('-s', help='Slice trajectory [START:END:STEP]')
+    parser.add_argument('-rmsd', help="Atom selection for RMSD calculation, default 'a.pt CA'", default='a.pt CA')
+    parser.add_argument('-fit', help="Atom selection for superposition, defaults to 'rmsd' selection")
+    parser.add_argument('-ref', help="Reference frame (default 0) OR structure filename (not implemented yet)")
     parser.add_argument('-o', help="Output filename.")
     parser.add_argument('-p', help="Plot results", action='store_true')
     args = parser.parse_args()
 
-    msys, cms, trj = traj_util.read_cms_and_traj(args.cms)
+    msys, cms = topo.read_cms(args.cms)
+    trj = traj.read_traj(args.trj)
+
+    if args.s:
+        start, end, step = args.s.split(':')
+        start = int(start) if start else None
+        end = int(end) if end else None
+        step = int(step) if step else None
+        slicer = slice(start, end, step)
+    else:
+        slicer = slice(None)
+
+    if args.mode.lower() == 'rmsd':
+        analyzer_class = analysis.RMSD
+    elif args.mode.lower() == 'rmsf':
+        analyzer_class = analysis.RMSF
+    else:
+        raise ValueError('Unrecognized mode, specify one of (RMSD, RMSF)')
 
     rmsd_aids = cms.select_atom(args.rmsd)
-    rmsd_gids = topo.aids2gids(cms, rmsd_aids)
-    ref_rmsd_st = cms.extract(rmsd_aids)
+    rmsd_gids = topo.aids2gids(cms, rmsd_aids, include_pseudoatoms=False)
+    rmsd_ref_pos = trj[int(args.ref)].pos(rmsd_gids)
 
-    if args.fit:
-        fit_aids = cms.select_atom(args.fit)
-        fit_gids = topo.aids2gids(cms, fit_aids)
-        ref_fit_st = cms.extract(fit_aids)
-        cur_fit_st = ref_fit_st.copy()
-        fit_atoms = list(range(1, ref_fit_st.atom_total + 1))
+    fit_aids = cms.select_atom(args.fit)
+    fit_gids = topo.aids2gids(cms, fit_aids, include_pseudoatoms=False)
+    fit_ref_pos = trj[int(args.ref)].pos(fit_gids)
 
-    cur_rmsd_st = ref_rmsd_st.copy()
-
-    rmsd_atoms = list(range(1, ref_rmsd_st.atom_total + 1))
-
-    n = len(trj)
-    RMSD = []
-    for fr in trj:
-        cur_rmsd_st.setXYZ(fr.pos(rmsd_gids))
-        if args.fit:
-            cur_fit_st.setXYZ(fr.pos(fit_gids))
-            R = rmsd.get_super_transformation_matrix(ref_fit_st, fit_atoms, cur_fit_st, fit_atoms)
-            transform.transform_structure(cur_rmsd_st, R)
-        res = rmsd.calculate_in_place_rmsd(ref_rmsd_st, rmsd_atoms, cur_rmsd_st, rmsd_atoms)
-        RMSD.append(res)
-        sys.stderr.write(f"\rframe {fr.orig_index} of {n}")
+    analyzer = analyzer_class(msys, cms, rmsd_aids, rmsd_ref_pos, fit_aids, fit_ref_pos)
+    res = analysis.analyze(trj[slicer], analyzer)
 
     fh = open(args.o + '.dat', 'x') if args.o else sys.stdout
 
-    for fr, r in zip(trj, RMSD):
+    for fr, r in zip(trj[slicer], res):
         fh.write(f"{fr.time} {r}\n")
 
     if args.p:
-        out = args.o + '.png' if args.o else 'rmsd_calc.png'
-        plt.plot([fr.time for fr in trj], RMSD)
+        out = args.o + '.png' if args.o else f'{args.mode}_calc.png'
+        if args.mode.lower() == 'rmsd'
+            plt.plot([fr.time for fr in trj[slicer]], res)
+        else: # assume RMSD
+            plt.plot(res)
         plt.xlabel('time (ps)')
-        plt.ylabel('RMSD (Å)')
+        plt.ylabel(f'{args.mode} (Å)')
         plt.savefig(out)
 
 

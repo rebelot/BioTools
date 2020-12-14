@@ -25,6 +25,7 @@ Get this fancy visualization of stuff interacting with membranes:
     parser.add_argument('trj', help='Input trajectory dir')
     parser.add_argument('out', help='output basename')
     parser.add_argument('-asl', help='What should be centered on the XY plane, default is protein', default='protein')
+    parser.add_argument('-mem', help='ASL defining the membrane, default is membrane', default='membrane')
     args = parser.parse_args()
 
     msys, cms = topo.read_cms(args.cms)
@@ -32,20 +33,34 @@ Get this fancy visualization of stuff interacting with membranes:
 
     pfx = pfx_module.Pfx(msys.glued_topology, fixbonds=True)
 
-    membrane_gids = topo.aids2gids(cms, cms.select_atom('membrane'))
+    membrane_gids = topo.aids2gids(cms, cms.select_atom(args.mem))
     protein_gids = topo.aids2gids(cms, cms.select_atom(args.asl))
 
     # 1) center the membrane along Z axis
     topo.center(msys, membrane_gids, trj, dims=[2])
+    topo.center_cms(msys, membrane_gids, cms, dims=[2])
 
     # 2) center the protein on the XY plane
     topo.center(msys, protein_gids, trj, dims=[0, 1])
+    topo.center_cms(msys, protein_gids, cms, dims=[0, 1])
 
     # 3) shift all the atoms in the simulation box up by half the length of the Z axis, then re-wrap
     for fr in tqdm(trj):
         z_mid = fr.box[-1,-1] / 2
         fr.moveby(0, 0, z_mid)
         pfx.apply(fr.pos(), fr.box, fr.vel()) # <- Kung Fu. This also makes the system whole (see topo.make_whole docstring)
+
+    # Pseudoatom madness
+    pos = msys.positions.copy()
+    pseudoi = []
+    for i in cms.pseudoatoms.values():
+        pseudoi += i
+    mask = np.ones(len(pos)).astype(bool)
+    mask[pseudoi] = False
+    pos[mask] = cms.getXYZ()
+    pos[:,-1] += cms.box[-1] / 2
+    pfx.apply(pos, cms.box.reshape(3,3))
+    cms.setXYZ(pos[mask])
 
     traj.write_traj(trj, args.out + '_trj')
     cms.property['s_chorus_trajectory_file'] = args.out + '_trj'
