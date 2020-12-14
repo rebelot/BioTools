@@ -1,7 +1,7 @@
 #!/opt/schrodinger/suites2019-3/run
 
 from schrodinger.application.desmond.packages import traj_util, topo, traj, analysis
-from schrodinger.structutils import rmsd, transform
+from schrodinger.structutils import analyze
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,6 +47,7 @@ def main():
 
     rmsd_asl = args.rmsd
     rmsd_aids = cms.select_atom(rmsd_asl)
+    rmsd_Atoms = analyze.get_atoms_from_asl(cms, rmsd_asl)
     rmsd_gids = topo.aids2gids(cms, rmsd_aids, include_pseudoatoms=False)
     rmsd_ref_pos = trj[int(args.ref)].pos(rmsd_gids)
 
@@ -64,8 +65,8 @@ def main():
         for fr, r in zip(trj[slicer], res):
             fh.write(f"{fr.time} {r}\n")
     else:
-        for i, r in res:
-            fh.write(f"{i} {r}\n")
+        for a, r in zip(rmsd_Atoms, res):
+            fh.write(f"{a.index} {a.resnum} {r}\n")
 
     if args.p:
         out = args.o + '.png' if args.o else f'{mode}_calc.png'
@@ -74,8 +75,9 @@ def main():
             plt.xlabel('time (ps)')
         else: # assume RMSF
             plt.plot(res)
+            plt.xticks(range(len(res)), [a.index for a in rmsd_Atoms])
             plt.xlabel('atom index')
-        plt.ylabel(f'{mode} (Å)')
+        plt.ylabel(f'{mode.upper()} (Å)')
         plt.savefig(out)
 
 
