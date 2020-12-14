@@ -71,8 +71,8 @@ def main():
     if args.p:
         out = args.o + '.png' if args.o else f'{mode}_calc.png'
         if mode == 'rmsd':
-            plt.plot([fr.time for fr in trj[slicer]], res)
-            plt.xlabel('time (ps)')
+            plt.plot([fr.time / 1000 for fr in trj[slicer]], res)
+            plt.xlabel('time (ns)')
         else: # assume RMSF
             plt.plot(res)
             plt.xticks(range(len(res)), [a.index for a in rmsd_Atoms])
