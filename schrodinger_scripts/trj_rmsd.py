@@ -59,7 +59,7 @@ def main():
     analyzer = analyzer_class(msys, cms, rmsd_aids, rmsd_ref_pos, fit_aids, fit_ref_pos)
     res = analysis.analyze(trj[slicer], analyzer)
 
-    fh = open(args.o + '.dat', 'x') if args.o else sys.stdout
+    fh = open(args.o + '.dat', 'w') if args.o else sys.stdout
 
     if mode == 'rmsd':
         for fr, r in zip(trj[slicer], res):
