@@ -61,7 +61,7 @@ def write_output(fh, em, keys):
 
 def write_em(fh, em, keys):
     for bond, key in zip(em, keys):
-        frames = ','.join(bond)
+        frames = ','.join(str(v) for v in bond)
         fh.write(f'{bond2str(key)}, {frames}\n')
 
 def write_allbonds(fh, all_bonds):
