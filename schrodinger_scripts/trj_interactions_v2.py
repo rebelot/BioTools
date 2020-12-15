@@ -42,11 +42,11 @@ def plot_em(ax, em, keys, times):
     ax.imshow(em, aspect='auto')
     ax.set_yticks(range(len(keys)))
     ax.set_yticklabels([bond2str(bond) for bond in keys], fontdict={'fontsize': 5})
-    nlab = 10
+    nlab = 5
     step = int(len(times) / (nlab - 1))
     pos = np.arange(0, len(times), step)
     ax.set_xticks(pos)
-    ax.set_xticklabels(times[::step])
+    ax.set_xticklabels(np.round(times[::step], decimals=2))
     ax.set_xlabel('time (ns)')
     ax.set_ylabel('bond')
 
@@ -107,7 +107,7 @@ def main():
 
     slicer = slice(*[int(v) if v else None for v in args.s.split(':')])
     trj = trj[slicer]
-    times = np.array(list(fr.time for fr in trj))
+    times = np.array(list(fr.time for fr in trj))/1000
 
     ATOMS = list(cms.atom)
 
