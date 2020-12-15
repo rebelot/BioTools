@@ -40,6 +40,7 @@ def reduceres(out):
 
 def plot_em(ax, em, keys):
     ax.imshow(em, aspect='auto')
+    ax.set_yticks(range(len(keys)))
     ax.set_yticklabels([bond2str(bond) for bond in keys], fontdict={'fontsize': 5})
     ax.set_xlabel('frame index')
     ax.set_ylabel('bond')
