@@ -139,7 +139,7 @@ def main():
         write_allbonds(fh_allbonds, all_bonds)
         fh_allbonds.close()
 
-        if keys and args.p:
+        if keys and args.plot:
             fig, ax = plt.subplots(1)
             plot_em(ax, em, keys)
             fig.savefig(args.o + f'-em_{btype}.png')
