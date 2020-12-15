@@ -38,17 +38,22 @@ def reduceres(out):
     return em[sorted_indices, :], [reslist[i] for i in sorted_indices]
 
 
-def plot_em(ax, em, keys):
+def plot_em(ax, em, keys, times):
     ax.imshow(em, aspect='auto')
     ax.set_yticks(range(len(keys)))
     ax.set_yticklabels([bond2str(bond) for bond in keys], fontdict={'fontsize': 5})
-    ax.set_xlabel('frame index')
+    nlab = 10
+    step = int(len(times) / (nlab - 1))
+    pos = np.arange(0, len(times), step)
+    ax.set_xticks(pos)
+    ax.set_xticklabels(times[::step])
+    ax.set_xlabel('time (ns)')
     ax.set_ylabel('bond')
 
 
-def plot_allbonds(ax, allbonds):
-    ax.plot(allbonds)
-    ax.set_xlabel('frame index')
+def plot_allbonds(ax, allbonds, times):
+    ax.plot(times, allbonds)
+    ax.set_xlabel('time (ns)')
     ax.set_ylabel('# bonds')
 
 
@@ -100,6 +105,7 @@ def main():
 
     slicer = slice(*[int(v) if v else None for v in args.s.split(':')])
     trj = trj[slicer]
+    times = np.array(list(fr.time for fr in trj))
 
     ATOMS = list(cms.atom)
 
@@ -142,11 +148,11 @@ def main():
 
         if keys and args.plot:
             fig, ax = plt.subplots(1)
-            plot_em(ax, em, keys)
+            plot_em(ax, em, keys, times)
             fig.savefig(args.o + f'-em_{btype}.png')
 
             fig, ax = plt.subplots(1)
-            plot_allbonds(ax, all_bonds)
+            plot_allbonds(ax, all_bonds, times)
             fig.savefig(args.o + f'-ab_{btype}.png')
 
 
