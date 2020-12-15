@@ -65,14 +65,16 @@ def write_output(fh, em, keys):
     pass
 
 
-def write_em(fh, em, keys):
+def write_em(fh, em, keys, times):
+    tstr = ','.join(str(t) for t in times)
+    fh.write('bond,'+tstr+'\n')
     for bond, key in zip(em, keys):
         frames = ','.join(str(v) for v in bond)
         fh.write(f'{bond2str(key)}, {frames}\n')
 
-def write_allbonds(fh, all_bonds):
-    for bond_num in all_bonds:
-        fh.write(f'{str(bond_num)}\n')
+def write_allbonds(fh, all_bonds, times):
+    for t, bond_num in zip(times, all_bonds):
+        fh.write(f'{t},{bond_num}\n')
 
 def main():
     parser = argparse.ArgumentParser(
@@ -140,10 +142,10 @@ def main():
         fh_em = open(args.o + f'_{btype}' + '-em.dat', 'w') if args.o else sys.stdout
 
         # write_summary(fh_summary, out_sorted)
-        write_em(fh_em, em, keys)
+        write_em(fh_em, em, keys, times)
         fh_em.close()
 
-        write_allbonds(fh_allbonds, all_bonds)
+        write_allbonds(fh_allbonds, all_bonds, times)
         fh_allbonds.close()
 
         if keys and args.plot:
