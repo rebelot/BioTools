@@ -126,7 +126,7 @@ def main():
     for o, btype in zip(out, ('HB', 'SB')):
         out_sorted = sortbonds(o, aids1, ATOMS)
         em, keys = reduceres(out_sorted)
-        all_bonds = count_bonds(out)
+        all_bonds = count_bonds(o)
 
         # fh_summary = open(args.o + '.txt', 'w') if args.o else sys.stdout
         fh_allbonds = open(args.o + f'_{btype}' + '-cum.dat', 'w') if args.o else sys.stdout
