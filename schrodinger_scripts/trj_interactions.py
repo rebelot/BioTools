@@ -120,20 +120,12 @@ def plot_data(salt_bridges, hydrogen_bonds, em_hb, em_sb, trj, out, ses='::'):
     axs[1].set_title('hydrogen bonds')
     fig.savefig(out + '.png')
 
-    em_sb_ratio = int(em_sb.shape[1] / em_sb.shape[0])
-    em_hb_ratio = int(em_hb.shape[1] / em_hb.shape[0])
-    # em_hb_offset = len(em_hb) * em_hb_ratio - em_hb.shape[1]
-    # em_sb_offset = len(em_sb) * em_sb_ratio - em_sb.shape[1]
     fig, axs = plt.subplots(2, 1)
-    axs[0].imshow(em_sb.repeat(em_sb_ratio, axis=0))
+    axs[0].imshow(em_sb, aspect='auto')
     axs[0].set_title('salt bridges')
-    axs[0].set_yticks(np.arange(0, len(em_sb) * em_sb_ratio, em_sb_ratio))
-    axs[0].set_yticklabels(list(map(lambda x: int(x), axs[0].get_yticks()/em_sb_ratio)))
 
-    axs[1].imshow(em_hb.repeat(em_hb_ratio, axis=0))
+    axs[1].imshow(em_hb, aspect='auto')
     axs[1].set_title('hydrogen bonds')
-    axs[1].set_yticks(np.arange(0, len(em_hb) * em_hb_ratio, em_hb_ratio))
-    axs[1].set_yticklabels(list(map(lambda x: int(x), axs[1].get_yticks()/em_hb_ratio)))
     fig.set_size_inches(20,30)
     fig.savefig(out + '-emap.png')
 

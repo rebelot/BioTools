@@ -20,6 +20,12 @@ from schrodinger.Qt.PyQt5.QtWidgets import (QCheckBox, QGridLayout, QGroupBox,
                                             QPushButton, QRadioButton,
                                             QVBoxLayout, QWidget, QMessageBox)
 
+# FIXME: It does not work on cms files, probably because of s_ffio_ct_type equal to full system property,
+# which is ignored by desmond msys. Possible workarounds:
+# - read structure from workspace, and props from pt
+# - strip s_ffio_ct_type property or change it to solute
+# option 1 is probably the best, so we do not fuck around with props,
+# since geometry has to be rebuilt anyways
 
 class App(QWidget):
     def __init__(self):
@@ -182,9 +188,9 @@ class App(QWidget):
             self.chorus_cy_le.setText(chorus_props[7])
             self.chorus_cz_le.setText(chorus_props[8])
             try:
-                if self.st.property[xtal.PBC_POSITION_KEY].split('_')[0] == 'anchor':
+                if self.row.property[xtal.PBC_POSITION_KEY].split('_')[0] == 'anchor':
                     self.anchor_box_rb.setChecked(True)
-                    _, x, y, z = self.st.property[xtal.PBC_POSITION_KEY].split('_')
+                    _, x, y, z = self.row.property[xtal.PBC_POSITION_KEY].split('_')
                     self.anchor_x_le.setText(x)
                     self.anchor_y_le.setText(y)
                     self.anchor_z_le.setText(z)
@@ -207,16 +213,18 @@ class App(QWidget):
             MBox.exec_()
 
     def on_clicked_apply_pfx_button(self):
-        apply_pfx(self.st)
-        self.row.setStructure(self.st)
+        self.read_props()
+        apply_pfx(self.st, self.chorus_box)
+        # self.row.setStructure(self.st)
+        maestro.workspace_set(self.st)
 
     def on_clicked_reload_button(self):
         self.set_defaults()
 
     def on_clicked_mbox_ok(self):
         pbc = PBC(1, 1, 1)
-        pbc.applyToStructure(self.st)
-        self.row.setStructure(self.st)
+        pbc.applyToStructure(self.row)
+        # self.row.setStructure(self.st)
         self.set_defaults()
 
     def on_clicked_set_prop_button(self):
@@ -241,15 +249,14 @@ class App(QWidget):
                 ]
         lattice_properties = [float(prop) for prop in lattice_properties]
         chorus_properties = [float(prop) for prop in chorus_properties]
-        xtal.set_lattice_properties(self.st, lattice_properties)
-        xtal.set_pbc_properties(self.st, chorus_properties)
+        xtal.set_lattice_properties(self.row, lattice_properties)
+        xtal.set_pbc_properties(self.row, chorus_properties)
         if self.anchor_box_rb.isChecked():
-            self.st.property[xtal.PBC_POSITION_KEY] = xtal.ANCHOR_PBC_POSITION % (self.anchor_x_le.text(),
+            self.row.property[xtal.PBC_POSITION_KEY] = xtal.ANCHOR_PBC_POSITION % (self.anchor_x_le.text(),
                                                       self.anchor_y_le.text(), self.anchor_z_le.text())
         elif self.center_box_rb.isChecked():
-            self.st.property.pop(xtal.PBC_POSITION_KEY, None)
+            self.row.property.pop(xtal.PBC_POSITION_KEY, None)
 
-        self.row.setStructure(self.st)
         self.pt.update()
 
     def on_clicked_chorus_sync_button(self):
@@ -316,14 +323,14 @@ class App(QWidget):
     def get_structure(self):
         pt = maestro.project_table_get()
         row = list(pt.selected_rows)[0]
-        st = row.getStructure()
         self.pt = pt
-        self.st = st
         self.row = row
+        self.st = maestro.workspace_get()
 
     def read_props(self):
-        lattice_props = xtal.get_lattice_param_properties(self.st)
-        chorus_props = xtal.get_chorus_properties(self.st)
+        lattice_props = xtal.get_lattice_param_properties(self.row)
+        chorus_props = xtal.get_chorus_properties(self.row)
+        self.chorus_box = np.array(chorus_props).reshape((3,3))
         return lattice_props, chorus_props
 
 
@@ -332,14 +339,10 @@ def get_topo(st):
     sys = topo.msys.LoadMAE(buffer=st.writeToString('maestro').encode(), structure_only=True)
     return sys.glued_topology
 
-def get_box(st):
-    params = xtal.get_chorus_properties(st)
-    return np.array(params).reshape((3,3))
 
-def apply_pfx(st):
+def apply_pfx(st, box):
     pos = st.getXYZ()
     glued_topo = get_topo(st)
-    box = get_box(st)
     pfx = pfx_module.Pfx(glued_topo)
     pfx.apply(pos, box)
     st.setXYZ(pos)
