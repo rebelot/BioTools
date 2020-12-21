@@ -3,7 +3,7 @@
   read_solute_structure "INPUT.mae"
 
   # Select forcefield
-  set_oplsaa_version 2005
+  set_oplsaa_version_as 2005, OPLS3e
   
   # Do not overwrite existing forcefield parameters in the input file
   remove_solute_ffio no
