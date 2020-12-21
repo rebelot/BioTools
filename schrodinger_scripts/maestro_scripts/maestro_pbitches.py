@@ -249,8 +249,32 @@ class App(QWidget):
                 ]
         lattice_properties = [float(prop) for prop in lattice_properties]
         chorus_properties = [float(prop) for prop in chorus_properties]
-        xtal.set_lattice_properties(self.row, lattice_properties)
-        xtal.set_pbc_properties(self.row, chorus_properties)
+        #FIXME: row workaround does not work, have to reimplement set_props
+        # xtal.set_lattice_properties(self.row, lattice_properties)
+        # xtal.set_pbc_properties(self.row, chorus_properties)
+        chorus_prop_keys = ['r_chorus_box_ax',
+                            'r_chorus_box_ay',
+                            'r_chorus_box_az',
+                            'r_chorus_box_bx',
+                            'r_chorus_box_by',
+                            'r_chorus_box_bz',
+                            'r_chorus_box_cx',
+                            'r_chorus_box_cy',
+                            'r_chorus_box_cz']
+        lattice_prop_keys = ["r_pdb_PDB_CRYST1_a",
+                             "r_pdb_PDB_CRYST1_b",
+                             "r_pdb_PDB_CRYST1_c",
+                             "r_pdb_PDB_CRYST1_alpha",
+                             "r_pdb_PDB_CRYST1_beta",
+                             "r_pdb_PDB_CRYST1_gamma"]
+        space_group_prop_key = "s_pdb_PDB_CRYST1_Space_Group"
+
+        for prop, key in zip(chorus_properties, chorus_properties):
+            self.row.property[key] = prop
+        for prop, key in zip(lattice_properties, lattice_prop_keys):
+            self.row.property[key] = prop
+        self.row.property[space_group_prop_key] = 'P 1'
+
         if self.anchor_box_rb.isChecked():
             self.row.property[xtal.PBC_POSITION_KEY] = xtal.ANCHOR_PBC_POSITION % (self.anchor_x_le.text(),
                                                       self.anchor_y_le.text(), self.anchor_z_le.text())
