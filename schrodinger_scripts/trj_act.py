@@ -81,7 +81,7 @@ e.g: -e "protein:center:0,1" will center the protein on the XY plane;
 
     print("Writing output...")
     cms_updated = topo.update_cms(cms, trj[-1])
-    cms_updated.fix_filenames(args.o + '-out.cms', args.o + '_trj')
+    cms_updated.fix_filenames(args.out + '-out.cms', args.out + '_trj')
     traj.write_traj(trj, args.out + "_trj")
     cms_updated.write(args.out + "-out.cms")
     # cms_updated.property["s_chorus_trajectory_file"] = args.out + "_trj"
