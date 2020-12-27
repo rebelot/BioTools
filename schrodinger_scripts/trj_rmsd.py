@@ -36,27 +36,26 @@ def main():
     else:
         slicer = slice(None)
 
-    mode = args.mode.lower()
-
-    if mode == 'rmsd':
-        analyzer_class = analysis.RMSD
-    elif mode == 'rmsf':
-        analyzer_class = analysis.RMSF
-    else:
-        raise ValueError('Unrecognized mode, specify one of (RMSD, RMSF)')
 
     rmsd_asl = args.rmsd
     rmsd_aids = cms.select_atom(rmsd_asl)
     rmsd_Atoms = analyze.get_atoms_from_asl(cms, rmsd_asl)
     rmsd_gids = topo.aids2gids(cms, rmsd_aids, include_pseudoatoms=False)
-    rmsd_ref_pos = trj[int(args.ref)].pos(rmsd_gids)
+    rmsd_ref_pos = trj[args.ref].pos(rmsd_gids)
 
     fit_asl = args.fit or rmsd_asl
     fit_aids = cms.select_atom(fit_asl)
     fit_gids = topo.aids2gids(cms, fit_aids, include_pseudoatoms=False)
     fit_ref_pos = trj[int(args.ref)].pos(fit_gids)
 
-    analyzer = analyzer_class(msys, cms, rmsd_aids, rmsd_ref_pos, fit_aids, fit_ref_pos)
+    mode = args.mode.lower()
+    if mode == 'rmsd':
+        analyzer = analysis.RMSD(msys, cms, rmsd_aids, rmsd_ref_pos, fit_aids=fit_aids, fit_ref_pos=fit_ref_pos)
+    elif mode == 'rmsf':
+        analyzer = analysis.RMSF(msys, cms, rmsd_aids, fit_aids=fit_aids, fit_ref_pos=fit_ref_pos)
+    else:
+        raise ValueError('Unrecognized mode, specify one of (RMSD, RMSF)')
+
     res = analysis.analyze(trj[slicer], analyzer)
 
     fh = open(args.o + '.dat', 'w') if args.o else sys.stdout
