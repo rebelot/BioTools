@@ -64,9 +64,14 @@ def main():
 
     if continuous:
         while True:
-            loglogfile(LOGFILE, TIME)
+            try:
+                loglogfile(LOGFILE, TIME)
+            except KeyboardInterrupt:
+                break
     else:
         loglogfile(LOGFILE, TIME)
+
+    print()
 
 
 
