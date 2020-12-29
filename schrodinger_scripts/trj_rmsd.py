@@ -39,7 +39,7 @@ def main():
 
     rmsd_asl = args.rmsd
     rmsd_aids = cms.select_atom(rmsd_asl)
-    rmsd_Atoms = analyze.get_atoms_from_asl(cms, rmsd_asl)
+    rmsd_Atoms = list(analyze.get_atoms_from_asl(cms, rmsd_asl))
     rmsd_gids = topo.aids2gids(cms, rmsd_aids, include_pseudoatoms=False)
     rmsd_ref_pos = trj[args.ref].pos(rmsd_gids)
 
@@ -75,7 +75,7 @@ def main():
         else: # assume RMSF
             plt.plot(res)
             n = np.linspace(0, len(res), 10)
-            plt.xticks(n, [f'{a.index}({a.resnum})' for a in rmsd_Atoms[::int(len(res) / 10)]], rotation='vertical')
+            plt.xticks(n, [a.resnum for a in rmsd_Atoms[::int(len(res) / 10)]], rotation='vertical')
             plt.xlabel('atom index')
         plt.ylabel(f'{mode.upper()} (Å)')
         plt.savefig(out)
