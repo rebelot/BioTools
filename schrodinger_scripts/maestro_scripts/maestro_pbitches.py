@@ -269,7 +269,7 @@ class App(QWidget):
                              "r_pdb_PDB_CRYST1_gamma"]
         space_group_prop_key = "s_pdb_PDB_CRYST1_Space_Group"
 
-        for prop, key in zip(chorus_properties, chorus_properties):
+        for prop, key in zip(chorus_properties, chorus_prop_keys):
             self.row.property[key] = prop
         for prop, key in zip(lattice_properties, lattice_prop_keys):
             self.row.property[key] = prop

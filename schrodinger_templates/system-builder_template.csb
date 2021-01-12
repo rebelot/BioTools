@@ -5,6 +5,10 @@
   # Select forcefield
   set_oplsaa_version_as 2005, OPLS3e
   
+  align_principal_axis_with_xyz Yes/No
+  align_principal_axis_with_diagonal Yes/No
+  rezero_to_center_of_mass Yes/No
+
   # Do not overwrite existing forcefield parameters in the input file
   remove_solute_ffio no
 
