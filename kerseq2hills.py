@@ -35,10 +35,11 @@ def main():
                     if line[0] != '#':
                         return i
 
+            start = 0 if not args.kT else 1
             stride = 1 if not args.kT else 2
 
             lines = fh.readlines()
-            for line in lines[skip_header(lines):len(lines):stride]:
+            for line in lines[skip_header(lines) + start:len(lines):stride]:
                     vals = line.strip().split()
                     time = vals[0]
                     height = vals[1]
