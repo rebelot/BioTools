@@ -32,22 +32,22 @@ def main():
 
             def skip_header(lines):
                 for i, line in enumerate(lines):
-                    if line[0] != '#':
+                    if line[0] != "#":
                         return i
 
             start = 0 if not args.kT else 1
             stride = 1 if not args.kT else 2
 
             lines = fh.readlines()
-            for line in lines[skip_header(lines) + start:len(lines):stride]:
-                    vals = line.strip().split()
-                    time = vals[0]
-                    height = vals[1]
-                    cvs = vals[2::2]
-                    sigmas = vals[3::2]
-                    out.write(
-                        f"{time} {' '.join(cvs)} {' '.join(sigmas)} {height} {biasf}\n"
-                    )
+            for line in lines[skip_header(lines) + start :len(lines):stride]:
+                vals = line.strip().split()
+                time = vals[0]
+                height = vals[1]
+                cvs = vals[2::2]
+                sigmas = vals[3::2]
+                out.write(
+                    f"{time} {' '.join(cvs)} {' '.join(sigmas)} {height} {biasf}\n"
+                )
 
 
 if __name__ == "__main__":
